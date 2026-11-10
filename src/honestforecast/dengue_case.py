@@ -10,7 +10,7 @@ import math
 from datetime import date
 from pathlib import Path
 from statistics import mean, pstdev
-from typing import Dict, Iterable, List, Mapping, Sequence, Tuple
+from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 from .comparison import FamilyDecision, compare_feature_family
 from .metrics import QUANTILE_LEVELS, quantile_column, summarize_predictions
@@ -211,10 +211,24 @@ def _eligible_origins(
     return [(snapshot, target) for target, snapshot in sorted(selected.items())]
 
 
-def run_dengue_pilot(repo: Path, data_path: str, output_dir: Path) -> Dict[str, object]:
+DIGITAL_FEATURES = (
+    "google_trends_dengue_fever",
+    "google_trends_dengue_vaccine",
+    "wikipedia_total_dengue_views",
+    "wikipedia_mosquito_views_total",
+)
+
+
+def run_dengue_pilot(
+    repo: Path, data_path: str, output_dir: Path, origin_start: Optional[str] = None
+) -> Dict[str, object]:
     snapshots = collect_git_snapshots(repo, data_path)
     latest_rows = _rows(snapshots[-1])
-    origins = _eligible_origins(snapshots, latest_rows)
+    origins = [
+        (snapshot, target)
+        for snapshot, target in _eligible_origins(snapshots, latest_rows)
+        if origin_start is None or snapshot.committed_at[:10] >= origin_start
+    ]
     if len(origins) < 6:
         raise DengueCaseError("fewer than six scored repository-vintage origins")
     methods: Dict[str, List[Dict[str, object]]] = {
@@ -259,6 +273,13 @@ def run_dengue_pilot(repo: Path, data_path: str, output_dir: Path) -> Dict[str, 
             )
             writer.writeheader()
             writer.writerows(rows)
+    with (output_dir / "availability.csv").open("w", newline="", encoding="utf-8") as handle:
+        # Digital features are read from the origin snapshot itself, so they existed by the commit time.
+        writer = csv.writer(handle, lineterminator="\n")
+        writer.writerow(["feature_id", "origin", "available_at", "vintage_at"])
+        for snapshot, _ in origins:
+            day = snapshot.committed_at[:10]
+            writer.writerows([feature, day, day, day] for feature in DIGITAL_FEATURES)
     metrics = {method: summarize_predictions(rows) for method, rows in methods.items()}
     decisions = {
         "target_history_vs_seasonal": compare_feature_family(
@@ -285,7 +306,7 @@ def run_dengue_pilot(repo: Path, data_path: str, output_dir: Path) -> Dict[str, 
         "retrospective_revision_gap": revision_gap,
         "limitations": [
             "repository commit time is not source-native publication time",
-            "only seven scored origins are available",
+            f"only {len(origins)} scored origins are available",
             "prediction intervals use in-sample residual quantiles",
             "no feature family is eligible for confirmation-level promotion",
         ],
@@ -345,10 +366,11 @@ def main() -> None:
         "--data-path", default="dengue_updater/data/processed/monthly_data.csv"
     )
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--origin-start", help="score only origins on or after this ISO date")
     args = parser.parse_args()
     print(
         json.dumps(
-            run_dengue_pilot(args.repo, args.data_path, args.output_dir),
+            run_dengue_pilot(args.repo, args.data_path, args.output_dir, args.origin_start),
             indent=2,
             sort_keys=True,
         )

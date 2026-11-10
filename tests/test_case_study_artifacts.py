@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from honestforecast.metrics import summarize_predictions
+from honestforecast.registration import load_registration, sha256_file
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,6 +27,13 @@ class CaseStudyArtifactTests(unittest.TestCase):
         )
         self.assertEqual(receipt["snapshot_count"], 18)
         self.assertFalse(receipt["source_native_publication_time_proven"])
+
+    def test_prospective_design_is_still_frozen(self):
+        prospective = CASE / "prospective"
+        lock = load_registration(prospective / "protocol.lock.json")
+        self.assertEqual(lock["input_sha256"]["contract"], sha256_file(prospective / "forecast_contract.json"))
+        self.assertEqual(lock["input_sha256"]["protocol"], sha256_file(prospective / "protocol.json"))
+        self.assertIn(lock["registration_sha256"], (prospective / "README.md").read_text())
 
 
 if __name__ == "__main__":

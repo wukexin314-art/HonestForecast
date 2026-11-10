@@ -1,0 +1,5 @@
+repetitions,effect,naive_promotions,honest_promotions,honest_true_lag_detections,naive_false_promotion_rate,honest_false_promotion_rate,multiplicity_warning_detected
+200,0.0,81,0,0,0.405,0.0,True
+200,0.25,110,0,0,0.55,0.0,True
+200,0.5,167,0,0,0.835,0.0,True
+200,1.0,200,0,0,1.0,0.0,True

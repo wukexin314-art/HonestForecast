@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 from honestforecast.metrics import summarize_predictions
-from honestforecast.synthetic import run
+from honestforecast.synthetic import power_experiment, run
 
 
 class SyntheticTests(unittest.TestCase):
@@ -27,6 +27,12 @@ class SyntheticTests(unittest.TestCase):
             self.assertEqual(receipt["scenario_results"]["S2_latest_revision_as_old_vintage"], "detected")
             self.assertEqual(receipt["scenario_results"]["S3_post_hoc_null_lags"], "detected")
             self.assertEqual(receipt["scenario_results"]["S8_single_outbreak_gain"], "detected")
+
+    def test_gate_releases_real_signal_more_than_null(self):
+        rows = power_experiment(effects=(0.0, 1.0), origin_counts=(24,), repetitions=12, bootstrap_repetitions=50)
+        null, real = rows
+        self.assertLessEqual(null["gate_release_rate"], null["naive_release_rate"])
+        self.assertGreater(real["gate_release_rate"], null["gate_release_rate"])
 
 
 if __name__ == "__main__":

@@ -9,7 +9,8 @@ import math
 import random
 from datetime import date
 from pathlib import Path
-from typing import Dict, Iterable, List, Mapping
+from statistics import NormalDist
+from typing import Dict, Iterable, List, Mapping, Sequence
 
 from .audit import (
     AuditError,
@@ -17,7 +18,8 @@ from .audit import (
     assert_no_future_availability,
     assert_no_future_vintage,
 )
-from .comparison import compare_feature_family
+from .comparison import compare_candidate, compare_feature_family
+from .dengue_case import ridge_predict
 from .evidence import render_evidence_card
 from .features import fit_fold_transform
 from .metrics import MetricError, QUANTILE_LEVELS, quantile_column, summarize_predictions
@@ -65,15 +67,20 @@ def _shifted_predictions(errors: List[float]) -> List[Dict[str, object]]:
     return rows
 
 
-def null_feature_experiment(repetitions: int = 40) -> Dict[str, object]:
-    """Compare naive post-hoc lag searching with registered/FDR screening."""
+def null_feature_experiment(repetitions: int = 40, effect: float = 0.0) -> Dict[str, object]:
+    """Compare naive post-hoc lag searching with registered/FDR screening.
+
+    ``effect > 0`` makes lag 2 truly predictive, so the same run measures power.
+    """
     naive_promotions = 0
     honest_promotions = 0
+    true_lag_detections = 0
     warning_detected = False
     for seed in range(repetitions):
         generator = random.Random(9173 + seed)
         feature = [generator.gauss(0, 1) for _ in range(48)]
         target = [generator.gauss(0, 1) for _ in range(48)]
+        target = [value + (effect * feature[i - 2] if i >= 2 else 0.0) for i, value in enumerate(target)]
         candidates = {}
         for lag in range(12):
             rows = []
@@ -94,14 +101,104 @@ def null_feature_experiment(repetitions: int = 40) -> Dict[str, object]:
             naive_promotions += 1
         if any(result["eligible"] for result in screened["results"]):
             honest_promotions += 1
+        true_lag_detections += any(
+            result["eligible"] and result["feature_id"] == "null_lag_2"
+            for result in screened["results"]
+        )
     return {
         "repetitions": repetitions,
+        "effect": effect,
         "naive_promotions": naive_promotions,
         "honest_promotions": honest_promotions,
+        "honest_true_lag_detections": true_lag_detections,
         "naive_false_promotion_rate": naive_promotions / repetitions,
         "honest_false_promotion_rate": honest_promotions / repetitions,
         "multiplicity_warning_detected": warning_detected,
     }
+
+
+def _power_rows(series: Mapping[str, Sequence[float]], burn: int, n_origins: int, use_feature: bool) -> List[Dict[str, object]]:
+    """Direct h-step ridge forecasts with Gaussian intervals from residual spread."""
+    y, x = series["y"], series["x"]
+
+    def features(s: int, h: int) -> List[float]:
+        angle = 2 * math.pi * (s + h) / 12
+        row = [math.sin(angle), math.cos(angle), y[s]]
+        return row + [x[s + h - 2]] if use_feature else row
+
+    rows = []
+    for origin in range(burn, burn + n_origins):
+        for h in (1, 2):
+            train = range(2, origin - h + 1)
+            point, residuals = ridge_predict(
+                [features(s, h) for s in train], [y[s + h] for s in train], features(origin, h)
+            )
+            spread = math.sqrt(sum(r * r for r in residuals) / (len(residuals) - len(features(origin, h)) - 1))
+            row = {
+                "origin": _add_months(date(2021, 1, 1), origin).isoformat(),
+                "target_date": _add_months(date(2021, 1, 1), origin + h).isoformat(),
+                "horizon": h,
+                "actual": y[origin + h],
+                "point": point,
+            }
+            for level in QUANTILE_LEVELS:
+                row[quantile_column(level)] = point + spread * NormalDist().inv_cdf(level)
+            rows.append(row)
+    return rows
+
+
+def power_experiment(
+    effects: Sequence[float] = (0.0, 0.25, 0.5, 1.0),
+    origin_counts: Sequence[int] = (6, 12, 24, 36),
+    repetitions: int = 100,
+    bootstrap_repetitions: int = 200,
+) -> List[Dict[str, object]]:
+    """Release rate of a truly useful (or null) feature: naive point win vs full gate.
+
+    ``effect`` is the feature's signal standard deviation relative to the AR noise.
+    """
+    burn, longest = 48, max(origin_counts)
+    warning_names = (
+        "event_concentration", "coverage_degradation", "fewer_than_60_percent_origins_improved",
+        "uncertainty_includes_no_improvement", "material_horizon_loss",
+    )
+    results = {
+        (e, n): {"naive": 0, "gate": 0, "warnings": dict.fromkeys(warning_names, 0)}
+        for e in effects for n in origin_counts
+    }
+    for seed in range(repetitions):
+        generator = random.Random(4100 + seed)
+        x, u = [0.0], [0.0]
+        for _ in range(burn + longest + 2):
+            x.append(0.6 * x[-1] + 0.8 * generator.gauss(0, 1))
+            u.append(0.5 * u[-1] + generator.gauss(0, 1))
+        for effect in effects:
+            beta = effect / math.sqrt(0.75)  # stationary sd of u is 1/sqrt(0.75)
+            y = [10 + 2 * math.sin(2 * math.pi * t / 12) + u[t] + (beta * x[t - 2] if t >= 2 else 0.0) for t in range(len(u))]
+            series = {"x": x, "y": y}
+            base_all = _power_rows(series, burn, longest, False)
+            cand_all = _power_rows(series, burn, longest, True)
+            for n in origin_counts:
+                decision = compare_candidate(
+                    "synthetic_proxy", base_all[: 2 * n], cand_all[: 2 * n],
+                    bootstrap_repetitions=bootstrap_repetitions, seed=seed,
+                )
+                cell = results[(effect, n)]
+                cell["naive"] += decision.mean_wis_difference < 0
+                cell["gate"] += decision.state == "challenger" and not decision.warnings
+                for warning in decision.warnings:
+                    cell["warnings"][warning] += 1
+    return [
+        {
+            "effect": effect,
+            "scored_origins": n,
+            "repetitions": repetitions,
+            "naive_release_rate": cell["naive"] / repetitions,
+            "gate_release_rate": cell["gate"] / repetitions,
+            **{f"warning_rate:{w}": c / repetitions for w, c in sorted(cell["warnings"].items())},
+        }
+        for (effect, n), cell in results.items()
+    ]
 
 
 def _expect_failure(name: str, error_type, function) -> str:
@@ -234,8 +331,18 @@ def run(output_dir: Path) -> Dict[str, object]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=Path("build/synthetic"))
+    parser.add_argument(
+        "--power-repetitions", type=int, default=0,
+        help="also write gate_power.csv and screening_power.csv (500 takes about 2 minutes)",
+    )
     args = parser.parse_args()
     receipt = run(args.output_dir)
+    if args.power_repetitions:
+        _write_csv(args.output_dir / "gate_power.csv", power_experiment(repetitions=args.power_repetitions))
+        _write_csv(
+            args.output_dir / "screening_power.csv",
+            [null_feature_experiment(args.power_repetitions, e) for e in (0.0, 0.25, 0.5, 1.0)],
+        )
     print(json.dumps(receipt, indent=2, sort_keys=True))
 
 
