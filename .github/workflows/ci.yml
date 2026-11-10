@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.11"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+      - name: Test
+        run: python -m unittest discover -s tests -v
+      - name: Synthetic known-answer run
+        run: honestforecast-synthetic --output-dir /tmp/honestforecast-synthetic
+      - name: Public safety and package metadata
+        run: |
+          python scripts/public_safety_scan.py
+          python setup.py check --strict
+          python -m pip wheel . --no-deps --wheel-dir /tmp/honestforecast-wheel
