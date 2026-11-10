@@ -159,7 +159,7 @@ skills/honest-forecast/           reusable Codex workflow and references
 
 ## Status
 
-Version 0.6.0 is research alpha software. Protocol locks detect design drift but use an untrusted local clock unless their digest is published externally. Structured audit evidence checks artifact bytes against declared hashes; it does not establish that their scientific claims are true. The India pilot has only seven scored origins and uses repository-state rather than source-native vintages. A longer prospective window is required before an effectiveness claim.
+Version 0.7.0 is research alpha software. Protocol locks detect design drift, including edits to the decision-code modules, but use an untrusted local clock unless their digest is published externally. Structured audit evidence checks artifact bytes against declared hashes; it does not establish that their scientific claims are true. The India pilot has only seven scored origins and uses repository-state rather than source-native vintages. A longer prospective window is required before an effectiveness claim.
 
 ## License and citation
 
