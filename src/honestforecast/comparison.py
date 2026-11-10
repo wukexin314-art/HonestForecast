@@ -53,15 +53,27 @@ def _percentile(values: Sequence[float], probability: float) -> float:
     return ordered[index]
 
 
+def bootstrap_block_length(n_origins: int) -> int:
+    """Fixed n^(1/3) rule, so the block length cannot be tuned after seeing results."""
+    return max(1, round(n_origins ** (1 / 3)))
+
+
 def _bootstrap_origin_means(
     origin_differences: Mapping[str, float], repetitions: int, seed: int
 ) -> Tuple[float, float]:
-    origins = sorted(origin_differences)
+    # Circular block bootstrap over chronological origins: neighbouring origins share
+    # epidemic phase and overlapping targets, so an iid resample understates uncertainty.
+    values = [origin_differences[origin] for origin in sorted(origin_differences)]
+    n = len(values)
+    block = bootstrap_block_length(n)
     generator = random.Random(seed)
-    samples = [
-        mean(origin_differences[generator.choice(origins)] for _ in origins)
-        for _ in range(repetitions)
-    ]
+    samples = []
+    for _ in range(repetitions):
+        drawn: List[float] = []
+        while len(drawn) < n:
+            start = generator.randrange(n)
+            drawn.extend(values[(start + offset) % n] for offset in range(block))
+        samples.append(mean(drawn[:n]))
     return _percentile(samples, 0.025), _percentile(samples, 0.975)
 
 

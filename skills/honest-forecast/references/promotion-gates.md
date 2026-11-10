@@ -18,7 +18,7 @@ HonestForecast reports candidate minus baseline differences. Negative WIS or MAE
 - `event_concentration`: removing the best origin removes or reverses the gain;
 - `coverage_degradation`: registered interval coverage falls by more than five percentage points;
 - `fewer_than_60_percent_origins_improved`;
-- `uncertainty_includes_no_improvement`: the origin-bootstrap upper bound is at least zero;
+- `uncertainty_includes_no_improvement`: the upper bound of the origin block bootstrap (circular, block length round(n^(1/3)) over chronological origins) is at least zero;
 - `material_horizon_loss`: pooled improvement hides a non-improving registered horizon.
 - `material_stratum_loss:<field>=<value>`: pooled improvement hides a non-improving registered subgroup.
 - `registration_missing`: the assessment lacks a matching locked protocol.
@@ -32,13 +32,13 @@ A gate can only say no if it can also say yes. From the repository's synthetic p
 
 | Scored origins | Null feature released | Strong true feature released |
 | ---: | ---: | ---: |
-| 6 | 13% | 45% |
-| 12 | 4% | 48% |
-| 24 | 3% | 57% |
-| 36 | 1% | 63% |
+| 6 | 13% | 43% |
+| 12 | 5% | 45% |
+| 24 | 2% | 50% |
+| 36 | 1% | 56% |
 
 - Below about 12 origins, a `rejected` or `challenger` result is weak evidence in either direction. Say so.
-- With enough origins, quote what the result rules out: `-bootstrap_95_lower / baseline WIS`. Example: lower bound −0.0023 on a baseline WIS of 0.3826 rules out average gains above about 0.6%.
+- With enough origins, quote what the result rules out: `-bootstrap_95_lower / baseline WIS`. Example: lower bound −0.0044 on a baseline WIS of 0.3826 rules out average gains above about 1.1%. Bundles from before the block bootstrap (any lock whose `comparison.py` hash is `385476ab…`) used an iid origin resample, which is too narrow for autocorrelated origins; say so when quoting them.
 - `coverage_degradation` uses a fixed 5-point threshold, so with few cases one extra miss can trigger it. Report it, but note when it is the only warning.
 - A design defect is not a null result. If the candidate did not use its availability advantage, or entered a drifting source as a raw level, describe the rejection as applying to that representation only.
 

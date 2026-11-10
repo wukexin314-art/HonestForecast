@@ -1,0 +1,8 @@
+{
+  "study_id": "india-dengue-prospective-2027",
+  "target_name": "WHO monthly dengue cases, India",
+  "frequency": "monthly",
+  "horizons": [1],
+  "primary_metric": "WIS",
+  "development_only_selection": true
+}

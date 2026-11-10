@@ -1,0 +1,33 @@
+{
+  "code_sha256": {
+    "assessment.py": "2ccb918e00f37284a98eaa08fa59009d9c43e6743e377af84edb42abc92654fa",
+    "audit.py": "9b12f20bd3d2bfe3299ee51849e373e60f743f8fb375ccd3246ed8083b4093e1",
+    "comparison.py": "74b7aa9f4bc6f7760b21503ba2be7fd3d64e4afdfc4eff2a1743d4d5fbded772",
+    "metrics.py": "1f17dca3e41bcfe5d8652bf0b0127469cf76ae7203f0ad8b7e6ffa3f18ab727f"
+  },
+  "input_sha256": {
+    "contract": "b1304c9729bc66bfb5810961d3fd02b69778071be6993485eec540b9417fff4d",
+    "protocol": "fa6628e7329c5a0a8b3b2867f4a46663f23d27a1feab3ec14a8fd9b749ed6725"
+  },
+  "protocol": {
+    "audit_checks": [],
+    "bootstrap_repetitions": 1000,
+    "candidate": {
+      "id": "wikipedia_influenza_nowcast",
+      "kind": "feature"
+    },
+    "confirmation_window": {
+      "end": "2027-05-31",
+      "start": "2026-11-13"
+    },
+    "registered_strata": [
+      "activity"
+    ],
+    "seed": 20261109,
+    "study_id": "us-ilinet-wiki-nowcast-prospective-2026"
+  },
+  "registered_at": "2026-11-10T20:51:47.108000Z",
+  "registration_sha256": "3c44ec850a0d7e705e29e6a11d0fa20039b28cd0e4a083626224abac128cf83d",
+  "schema_version": "1.1",
+  "timestamp_authority": "local_clock_untrusted"
+}

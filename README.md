@@ -29,7 +29,7 @@ HonestForecast makes those failure modes explicit and testable.
 - fold-local imputation and clipping with lineage;
 - development-cutoff enforcement, block-permutation nulls, stability checks, and BH-FDR;
 - MAE, WIS, interval coverage, and exact common-grid validation;
-- paired candidate comparison, origin bootstrap, horizon and registered-stratum sensitivity;
+- paired candidate comparison, circular block bootstrap over origins, horizon and registered-stratum sensitivity;
 - optional multi-series `unit` keys for locations, sites, products, or populations;
 - feature, data-source, model, preprocessing, recalibration, ensemble, and pipeline candidates;
 - append-only `challenger`, `rejected`, and `promoted` decisions;
@@ -52,7 +52,7 @@ python -m unittest discover -s tests -v
 honestforecast-synthetic --output-dir build/synthetic
 ```
 
-The synthetic experiment injects known defects and writes predictions, regenerated metrics, feature lineage, an audit receipt, and an evidence card. In the current deterministic benchmark, naive candidate search falsely promotes 14 of 40 null-feature experiments; the registered workflow promotes 1 of 40. The [power study](case_studies/synthetic_power/REPORT.md) checks that the gates can also say yes. Screening finds a truly predictive lag 50% of the time at a moderate effect and 100% at a strong one. The promotion gate releases a strong true feature 45–63% of the time and a null one 1–13% of the time, so it is weak with fewer than about 12 scored origins. Version 0.6 reported 0 of 40, but its circular-shift null could not pass any single lag at this sample size; the block-permutation null replaced it.
+The synthetic experiment injects known defects and writes predictions, regenerated metrics, feature lineage, an audit receipt, and an evidence card. In the current deterministic benchmark, naive candidate search falsely promotes 14 of 40 null-feature experiments; the registered workflow promotes 1 of 40. The [power study](case_studies/synthetic_power/REPORT.md) checks that the gates can also say yes. Screening finds a truly predictive lag 50% of the time at a moderate effect and 100% at a strong one. The promotion gate releases a strong true feature 43–56% of the time and a null one 1–13% of the time, so it is weak with fewer than about 12 scored origins. Version 0.6 reported 0 of 40, but its circular-shift null could not pass any single lag at this sample size; the block-permutation null replaced it.
 
 ## Assess predictions from any model
 
@@ -135,9 +135,9 @@ The India dengue case reconstructs 18 Git-preserved input snapshots from March t
 
 On the first seven comparable forecast origins, seasonal naive outperformed the small target-history ridge and digital-proxy challengers. Using latest-revised proxy histories instead of origin-matched histories changed the result and made it worse in this sample. Both feature increments remain recorded as rejected rather than being hidden.
 
-See the [pilot report](case_studies/india_dengue/pilot/REPORT.md), [vintage audit](case_studies/india_dengue/vintage_audit/REPORT.md), and machine-readable artifacts beside them. A [prospective confirmation](case_studies/india_dengue/prospective_v2/README.md) of the digital-proxy question was locked on 2026-11-10 for origins through 2027-11-10. This is an exploratory software case, not a clinical forecast or a claim that digital traces never help.
+See the [pilot report](case_studies/india_dengue/pilot/REPORT.md), [vintage audit](case_studies/india_dengue/vintage_audit/REPORT.md), and machine-readable artifacts beside them. A [prospective confirmation](case_studies/india_dengue/prospective_v3/README.md) of the digital-proxy question was locked on 2026-11-10 for origins through 2027-11-10. This is an exploratory software case, not a clinical forecast or a claim that digital traces never help.
 
-A second case uses **source-native vintages**: CDC ILINet wILI from Delphi's release archive, which records each value change with its real release date, for the US and 10 HHS regions. A [sealed retrospective](case_studies/us_flu/REPORT.md) was registered before scoring. Over 64 origins in 2024/25–2025/26, Wikipedia "Influenza" pageviews were `rejected` (WIS +0.0018, 95% interval −0.0023 to +0.0065), and backtesting on latest-revised history overstated skill by 2–6%. A [prospective follow-up](case_studies/us_flu_nowcast/README.md) uses the pageviews' timeliness (the partial current week) with calibrated intervals; it was locked on 2026-11-10 for ILINet releases from 2026-11-13 to 2027-05-31.
+A second case uses **source-native vintages**: CDC ILINet wILI from Delphi's release archive, which records each value change with its real release date, for the US and 10 HHS regions. A [sealed retrospective](case_studies/us_flu/REPORT.md) was registered before scoring. Over 64 origins in 2024/25–2025/26, Wikipedia "Influenza" pageviews were `rejected` (WIS +0.0018, 95% block-bootstrap interval −0.0044 to +0.0067, so gains above about 1.1% are ruled out), and backtesting on latest-revised history overstated skill by 2–6%. A [prospective follow-up](case_studies/us_flu_nowcast/README.md) uses the pageviews' timeliness (the partial current week) with calibrated intervals; it was locked on 2026-11-10 for ILINet releases from 2026-11-13 to 2027-05-31.
 
 ## Where the design came from
 

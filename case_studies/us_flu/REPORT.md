@@ -10,11 +10,14 @@ Design, data and frozen rules: [confirmation/README.md](confirmation/README.md).
 | --- | ---: |
 | Scored cases / origins | 1408 / 64 |
 | Mean WIS difference (wiki − ar) | +0.0018 |
-| Origin-bootstrap 95% interval | −0.0023 to +0.0065 |
+| Origin-bootstrap 95% interval (registered, iid) | −0.0023 to +0.0065 |
+| Block-bootstrap 95% interval (post hoc, see below) | −0.0044 to +0.0067 |
 | Origins where wiki helped | 48% |
 | Warnings | `event_concentration`, `fewer_than_60_percent_origins_improved`, `uncertainty_includes_no_improvement` |
 
-Positive differences mean the candidate is worse. Adding Wikipedia "Influenza" pageviews did not improve forecasts at either horizon (h=1: +0.0008, h=2: +0.0029). It helped in 3 of 11 regions, which is no better than chance. The development seasons showed the same pattern: +0.0032 overall, `rejected`. This is a **well-supported null** within the stated limits: 64 origins is well beyond the about 12 that the [power study](../synthetic_power/REPORT.md) flags as too few, so a large real effect would probably have shown up. More precisely, the lower end of the 95% interval is −0.0023, which is −0.6% of baseline WIS. **These data rule out an average improvement larger than about 0.6%** from this feature as specified.
+Positive differences mean the candidate is worse. Adding Wikipedia "Influenza" pageviews did not improve forecasts at either horizon (h=1: +0.0008, h=2: +0.0029). It helped in 3 of 11 regions, which is no better than chance. The development seasons showed the same pattern: +0.0032 overall, `rejected`. This is a **well-supported null** within the stated limits: 64 origins is well beyond the about 12 that the [power study](../synthetic_power/REPORT.md) flags as too few, so a large real effect would probably have shown up. More precisely, **these data rule out an average improvement larger than about 1.1%** from this feature as specified.
+
+**Correction (2026-11-10, after scoring).** The registered interval came from an iid resample of origins, which ignores that neighbouring weekly origins are correlated (lag-1 autocorrelation of the origin differences is 0.2). It was too narrow. Re-running the same origin differences through the circular block bootstrap that later decision code uses (block length 4, same seed) gives −0.0044 to +0.0067. The lower end is −1.1% of baseline WIS, so the earlier claim of "about 0.6%" overstated what the data rule out by about half. The registered decision, `rejected`, does not change: it depends on the sign of the mean, and the warnings are the same. The committed evidence bundle is left as registered.
 
 A follow-up that keeps the feature's timeliness advantage, with calibrated intervals and prospective 2026/27 origins, is in [../us_flu_nowcast/](../us_flu_nowcast/README.md).
 

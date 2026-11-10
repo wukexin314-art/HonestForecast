@@ -18,15 +18,15 @@ Release rate (naive / gate):
 
 | effect \ scored origins | 6 | 12 | 24 | 36 |
 | --- | --- | --- | --- | --- |
-| 0 (null) | 0.38 / **0.13** | 0.31 / **0.04** | 0.25 / **0.03** | 0.21 / **0.01** |
-| 0.25 | 0.55 / 0.19 | 0.55 / 0.14 | 0.52 / 0.13 | 0.56 / 0.12 |
-| 0.5 | 0.72 / 0.32 | 0.74 / 0.26 | 0.80 / 0.30 | 0.86 / 0.32 |
-| 1.0 | 0.85 / 0.45 | 0.89 / 0.48 | 0.96 / 0.57 | 0.98 / 0.63 |
+| 0 (null) | 0.38 / **0.13** | 0.31 / **0.05** | 0.25 / **0.02** | 0.21 / **0.01** |
+| 0.25 | 0.55 / 0.20 | 0.55 / 0.13 | 0.52 / 0.10 | 0.56 / 0.09 |
+| 0.5 | 0.72 / 0.33 | 0.74 / 0.25 | 0.80 / 0.24 | 0.86 / 0.25 |
+| 1.0 | 0.85 / 0.43 | 0.89 / 0.45 | 0.96 / 0.50 | 0.98 / 0.56 |
 
 Findings:
 
-1. The gate does release real signal: a strong feature passes 45–63% of the time, versus 1–13% for a null feature.
-2. With 6 scored origins the gate is weak in both directions. A null feature passes 13% of the time, and a strong one passes less than half the time. Short confirmation windows cannot settle a feature question.
+1. The gate does release real signal: a strong feature passes 43–56% of the time, versus 1–13% for a null feature. Since the origin bootstrap became a circular block bootstrap (block length round(n^(1/3))), power is a few points lower than with the earlier iid resample (45–63%), which ignored the AR(1) dependence between origins and so made the interval gate too lenient.
+2. With 6 scored origins the gate is weak in both directions. A null feature passes 13% of the time, and a strong one passes less than half the time (43%). Short confirmation windows cannot settle a feature question.
 3. For small and medium effects, power hardly grows with more origins. The `coverage_degradation` rule binds at a fixed 5-percentage-point threshold and fires in 22–43% of runs even for strong true features. Interval coverage differences on a few dozen cases are noisy, so this rule is the main source of lost power. See the `warning_rate:*` columns.
 
 ## Screening stage (`screening_power.csv`)

@@ -2,18 +2,20 @@
 
 **Question:** do the Sunday–Wednesday English Wikipedia "Influenza" pageviews of the current week improve a ridge forecast built only from as-of wILI history, 1 and 2 weeks ahead? These pageviews already exist when Friday's ILINet release covers only last week.
 
-This follows the [v1 sealed retrospective](../us_flu/REPORT.md), which ruled out gains above about 0.6% for same-week pageviews. v2 changes four things:
+This follows the [v1 sealed retrospective](../us_flu/REPORT.md), which ruled out gains above about 1.1% for same-week pageviews (0.6% under the original iid bootstrap). v2 changes four things:
 
 1. It uses the feature's **timeliness**: the partial current week, which v1 never used.
 2. It enters pageviews as **growth** (partial-week rate vs the last full week), so traffic drift cancels.
 3. It sets interval spread from each method's own **out-of-sample errors**, scored against values released by the origin.
 4. It registers an **activity stratum** (as-of wILI ≥ 3 at the origin). A material loss in either the high or the low group blocks promotion.
 
-Registration digest (`registration_sha256` in `prospective/protocol.lock.json`):
+Registration digest (`registration_sha256` in `prospective_r2/protocol.lock.json`):
 
 ```
-ee5dc3b3e549de81e00db5a65d061aa1eb6bae155a0e84770413acbf0915220a
+3c44ec850a0d7e705e29e6a11d0fa20039b28cd0e4a083626224abac128cf83d
 ```
+
+This lock supersedes `prospective/protocol.lock.json` (`ee5dc3b3e549de81e00db5a65d061aa1eb6bae155a0e84770413acbf0915220a`), registered the same day, before the first confirmation origin. The design, contract and manifest are byte-identical. Only the pinned `comparison.py` changed: the origin bootstrap is now a circular block bootstrap, because neighbouring weekly origins are autocorrelated. The old folder is kept.
 
 **This is a true prospective test.** Confirmation origins are ILINet releases from **2026-11-13** (the first release after this folder was pushed) to 2027-05-31. None of their outcomes existed at registration.
 
@@ -55,7 +57,7 @@ The growth feature does carry signal. Its correlation with next-week national wI
 | Intervals | Gaussian with RMS of the method's last 52 resolved out-of-sample errors per region and horizon (at least 10, else the training spread). Calibration state warms up from 2022/23 |
 | Stratum | `activity` = high if as-of wILI ≥ 3.0 at the origin |
 | Horizons / metric | 1 and 2 weeks / paired WIS. Promotion needs no registered warning |
-| Bootstrap / seed | 1000 / 20261109 |
+| Bootstrap / seed | 1000 / 20261109, circular block bootstrap over origins |
 
 ## Rules fixed in advance
 
@@ -70,13 +72,13 @@ The growth feature does carry signal. Its correlation with next-week national wI
 honestforecast-flu-nowcast fetch
 honestforecast-flu-nowcast run --split confirmation --output-dir build/nowcast-confirmation
 honestforecast assess \
-  --contract case_studies/us_flu_nowcast/prospective/forecast_contract.json \
-  --manifest case_studies/us_flu_nowcast/prospective/feature_manifest.csv \
+  --contract case_studies/us_flu_nowcast/prospective_r2/forecast_contract.json \
+  --manifest case_studies/us_flu_nowcast/prospective_r2/feature_manifest.csv \
   --baseline build/nowcast-confirmation/predictions_ar.csv \
   --candidate build/nowcast-confirmation/predictions_ar_wiki_nowcast.csv \
   --availability build/nowcast-confirmation/availability.csv \
   --candidate-id wikipedia_influenza_nowcast --candidate-kind feature \
   --stratum activity \
-  --registration case_studies/us_flu_nowcast/prospective/protocol.lock.json \
+  --registration case_studies/us_flu_nowcast/prospective_r2/protocol.lock.json \
   --all-audit-gates-passed --output build/nowcast-assessment
 ```
