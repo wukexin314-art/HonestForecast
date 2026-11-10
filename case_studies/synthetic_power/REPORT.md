@@ -19,15 +19,25 @@ Release rate (naive / gate):
 | effect \ scored origins | 6 | 12 | 24 | 36 |
 | --- | --- | --- | --- | --- |
 | 0 (null) | 0.38 / **0.13** | 0.31 / **0.05** | 0.25 / **0.02** | 0.21 / **0.01** |
-| 0.25 | 0.55 / 0.20 | 0.55 / 0.13 | 0.52 / 0.10 | 0.56 / 0.09 |
-| 0.5 | 0.72 / 0.33 | 0.74 / 0.25 | 0.80 / 0.24 | 0.86 / 0.25 |
-| 1.0 | 0.85 / 0.43 | 0.89 / 0.45 | 0.96 / 0.50 | 0.98 / 0.56 |
+| 0.25 | 0.55 / 0.21 | 0.55 / 0.13 | 0.52 / 0.10 | 0.56 / 0.09 |
+| 0.5 | 0.72 / 0.35 | 0.74 / 0.26 | 0.80 / 0.25 | 0.86 / 0.25 |
+| 1.0 | 0.85 / 0.52 | 0.89 / 0.50 | 0.96 / 0.57 | 0.98 / 0.63 |
 
 Findings:
 
-1. The gate does release real signal: a strong feature passes 43–56% of the time, versus 1–13% for a null feature. Since the origin bootstrap became a circular block bootstrap (block length round(n^(1/3))), power is a few points lower than with the earlier iid resample (45–63%), which ignored the AR(1) dependence between origins and so made the interval gate too lenient.
-2. With 6 scored origins the gate is weak in both directions. A null feature passes 13% of the time, and a strong one passes less than half the time (43%). Short confirmation windows cannot settle a feature question.
-3. For small and medium effects, power hardly grows with more origins. The `coverage_degradation` rule binds at a fixed 5-percentage-point threshold and fires in 22–43% of runs even for strong true features. Interval coverage differences on a few dozen cases are noisy, so this rule is the main source of lost power. See the `warning_rate:*` columns.
+1. The gate does release real signal: a strong feature passes 52–63% of the time, versus 1–13% for a null feature.
+2. With 6 scored origins the gate is weak in both directions. A null feature passes 13% of the time, and a strong one passes about half the time (52%).
+3. The binding rule is now the interval itself: `uncertainty_includes_no_improvement` fires in 33–49% of strong-feature runs, then the 60%-of-origins rule (7–24%). Power for small and medium effects still hardly grows with more origins. See the `warning_rate:*` columns.
+
+**Rule history.** Two changes on 2026-11-10 moved these numbers, and the null row barely moved in either:
+
+| Decision code | Strong feature released | Null released | Strong runs vetoed by `coverage_degradation` |
+| --- | ---: | ---: | ---: |
+| iid origin bootstrap, fixed 5-point coverage veto, any non-improving horizon vetoes | 45–63% | 1–13% | 28–43% |
+| + circular block bootstrap (block round(n^(1/3))) | 43–56% | 1–13% | 28–43% |
+| + coverage veto needs a block-bootstrap interval below zero; horizon/stratum veto needs a loss distinguishable from the pooled gain | 52–63% | 1–13% | 6–8% |
+
+The fixed 5-point coverage veto was the main source of lost power: one or two extra misses in a few dozen cases could block a real improvement that WIS, which already scores calibration, rewarded.
 
 ## Screening stage (`screening_power.csv`)
 

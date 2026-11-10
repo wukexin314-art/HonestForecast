@@ -1,6 +1,6 @@
 # India dengue prospective confirmation, v2 (registered 2026-11-10)
 
-> **Superseded by [v3](../prospective_v3/README.md) on 2026-11-10, before any in-window origin.** The design is unchanged. v3 pins a decision code whose origin bootstrap accounts for autocorrelation. Use v3 for scoring.
+> **Superseded by [v3](../prospective_v3/README.md) on 2026-11-10, before any in-window origin.** The design is unchanged. v3 pins a decision code whose origin bootstrap accounts for autocorrelation. Use [v4](../prospective_v4/README.md) for scoring.
 
 This replaces [v1](../prospective/README.md), which was registered and pushed on the same day, before any in-window origin. The design is identical. The only change is that the lock now also pins the bytes of the decision code (`assessment.py`, `audit.py`, `comparison.py` and `metrics.py`, under `code_sha256`). Without that, an edit to a scoring or promotion rule would still pass `assess --registration`. v1 is kept unchanged, as rule 5 requires.
 

@@ -1,6 +1,6 @@
 # India dengue prospective confirmation (registered 2026-11-10)
 
-> **Superseded by [v2](../prospective_v2/README.md) on 2026-11-10, before any in-window origin.** The design is unchanged. v2's lock also pins the decision-code hashes. Use [v3](../prospective_v3/README.md) for scoring.
+> **Superseded by [v2](../prospective_v2/README.md) on 2026-11-10, before any in-window origin.** The design is unchanged. v2's lock also pins the decision-code hashes. Use [v4](../prospective_v4/README.md) for scoring.
 
 This folder freezes the confirmatory test of the question the pilot could not settle: **do digital-proxy features (`digital_proxies`) improve the target-history ridge (`ar`) on origins captured after this registration?**
 

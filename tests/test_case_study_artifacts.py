@@ -29,7 +29,7 @@ class CaseStudyArtifactTests(unittest.TestCase):
         self.assertFalse(receipt["source_native_publication_time_proven"])
 
     def test_prospective_design_is_still_frozen(self):
-        for folder in ("prospective", "prospective_v2", "prospective_v3"):
+        for folder in ("prospective", "prospective_v2", "prospective_v3", "prospective_v4"):
             with self.subTest(folder=folder):
                 prospective = CASE / folder
                 lock = load_registration(prospective / "protocol.lock.json")
@@ -42,7 +42,7 @@ class CaseStudyArtifactTests(unittest.TestCase):
         self.assertIn(lock["registration_sha256"], (flu / "README.md").read_text())
         nowcast = ROOT / "case_studies" / "us_flu_nowcast"
         readme = (nowcast / "README.md").read_text()
-        for folder in ("prospective", "prospective_r2"):
+        for folder in ("prospective", "prospective_r2", "prospective_r3"):
             lock = load_registration(nowcast / folder / "protocol.lock.json")
             self.assertIn(lock["registration_sha256"], readme)
             self.assertEqual(lock["input_sha256"]["protocol"], sha256_file(nowcast / folder / "protocol.json"))
@@ -51,7 +51,7 @@ class CaseStudyArtifactTests(unittest.TestCase):
             with self.subTest(module=module):
                 self.assertIn(sha256_file(ROOT / "src" / "honestforecast" / module), readme)
         # Fails if a scoring or promotion rule is edited while the open confirmations run.
-        for lock_path in (CASE / "prospective_v3" / "protocol.lock.json", nowcast / "prospective_r2" / "protocol.lock.json"):
+        for lock_path in (CASE / "prospective_v4" / "protocol.lock.json", nowcast / "prospective_r3" / "protocol.lock.json"):
             with self.subTest(lock=str(lock_path)):
                 self.assertEqual(load_registration(lock_path)["code_sha256"], decision_code_hashes())
 

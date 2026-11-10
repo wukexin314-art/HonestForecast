@@ -1,5 +1,7 @@
 # India dengue prospective confirmation, v3 (registered 2026-11-10)
 
+> **Superseded by [v4](../prospective_v4/README.md) on 2026-11-10, before any in-window origin.** The design is unchanged. v4 pins decision code whose coverage and subgroup rules need evidence beyond noise to veto. Use v4 for scoring.
+
 This replaces [v2](../prospective_v2/README.md), registered and pushed the same day, before any in-window origin (first: 2026-11-20). The study design is identical. The only change is in the pinned decision code: `comparison.py` now uses a circular block bootstrap over chronological origins (block length round(n^(1/3)), fixed in code) instead of an iid origin resample. Neighbouring origins are autocorrelated, so the iid interval was too narrow and the `uncertainty_includes_no_improvement` gate too lenient. v1 and v2 are kept unchanged, as rule 5 requires.
 
 This folder freezes the confirmatory test of the question the pilot could not settle: **do digital-proxy features (`digital_proxies`) improve the target-history ridge (`ar`) on origins captured after this registration?**

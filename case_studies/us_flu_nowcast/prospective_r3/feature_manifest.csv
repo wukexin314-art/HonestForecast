@@ -1,0 +1,2 @@
+feature_id,family,version,availability_class,minimum_reporting_lag,vintage_policy,state
+wiki_influenza_en_partial_week,wikipedia_influenza_nowcast,1,observed_with_lag,1 day,never_revised,candidate

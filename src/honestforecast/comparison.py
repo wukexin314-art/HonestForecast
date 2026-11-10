@@ -77,6 +77,17 @@ def _bootstrap_origin_means(
     return _percentile(samples, 0.025), _percentile(samples, 0.975)
 
 
+def distinguishable_subgroup_loss(
+    origin_differences: Mapping[str, float],
+    pooled_mean: float,
+    repetitions: int,
+    seed: int,
+) -> Tuple[bool, float]:
+    """A subgroup loss counts only if its mean is non-improving and its interval excludes the pooled gain."""
+    lower, _ = _bootstrap_origin_means(origin_differences, repetitions, seed)
+    return mean(origin_differences.values()) >= 0 and lower > pooled_mean, lower
+
+
 def compare_feature_family(
     family: str,
     baseline_rows: Iterable[Mapping[str, object]],
@@ -121,20 +132,43 @@ def compare_feature_family(
     coverage_difference = _coverage(candidate, *coverage_interval) - _coverage(
         baseline, *coverage_interval
     )
+    coverage_by_origin: Dict[str, List[float]] = {}
+    for key in sorted(baseline_by_key):
+        inside = [
+            float(row[quantile_column(coverage_interval[0])])
+            <= float(row["actual"])
+            <= float(row[quantile_column(coverage_interval[1])])
+            for row in (candidate_by_key[key], baseline_by_key[key])
+        ]
+        coverage_by_origin.setdefault(key[0], []).append(float(inside[0]) - float(inside[1]))
+    _, coverage_upper = _bootstrap_origin_means(
+        {origin: mean(values) for origin, values in coverage_by_origin.items()},
+        bootstrap_repetitions,
+        seed,
+    )
     mean_wis = mean(wis_differences)
     warnings = []
     if drop_best >= 0:
         warnings.append("event_concentration")
-    if coverage_difference < -0.05:
+    # WIS already scores calibration; veto only a large coverage loss that is not noise.
+    if coverage_difference < -0.05 and coverage_upper < 0:
         warnings.append("coverage_degradation")
     if improved_proportion < 0.6:
         warnings.append("fewer_than_60_percent_origins_improved")
     if upper >= 0:
         warnings.append("uncertainty_includes_no_improvement")
-    horizon_differences: Dict[int, List[float]] = {}
+    horizon_by_origin: Dict[int, Dict[str, List[float]]] = {}
     for key, difference in zip(sorted(baseline_by_key), wis_differences):
-        horizon_differences.setdefault(key[2], []).append(difference)
-    if mean_wis < 0 and any(mean(values) >= 0 for values in horizon_differences.values()):
+        horizon_by_origin.setdefault(key[2], {}).setdefault(key[0], []).append(difference)
+    if mean_wis < 0 and any(
+        distinguishable_subgroup_loss(
+            {origin: mean(values) for origin, values in by_horizon.items()},
+            mean_wis,
+            bootstrap_repetitions,
+            seed,
+        )[0]
+        for by_horizon in horizon_by_origin.values()
+    ):
         warnings.append("material_horizon_loss")
 
     state = "challenger" if mean_wis < 0 else "rejected"

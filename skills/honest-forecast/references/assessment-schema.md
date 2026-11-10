@@ -68,7 +68,7 @@ Both prediction CSVs require one row per case and these columns:
 
 Baseline and candidate `(origin, target_date, horizon, unit)` grids and actual values must match exactly.
 
-Register subgroup columns with repeated `--stratum FIELD`. The field must be populated and identical in both prediction files for every case. A non-improving registered stratum blocks promotion when the pooled result improves.
+Register subgroup columns with repeated `--stratum FIELD`. The field must be populated and identical in both prediction files for every case. When the pooled result improves, a registered stratum blocks promotion if its mean is non-improving and its block-bootstrap lower bound lies above the pooled mean difference.
 
 ## Availability evidence
 

@@ -1,0 +1,15 @@
+{
+  "study_id": "us-ilinet-wiki-nowcast-prospective-2026",
+  "candidate": {
+    "id": "wikipedia_influenza_nowcast",
+    "kind": "feature"
+  },
+  "confirmation_window": {
+    "start": "2026-11-13",
+    "end": "2027-05-31"
+  },
+  "registered_strata": ["activity"],
+  "bootstrap_repetitions": 1000,
+  "seed": 20261109,
+  "audit_checks": []
+}

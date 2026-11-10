@@ -99,7 +99,7 @@ Add the same subgroup column to both prediction files and register it explicitly
 honestforecast assess ... --stratum region --stratum population
 ```
 
-The output reports WIS differences for every registered value. If the pooled candidate improves but any registered stratum does not, `material_stratum_loss:<field>=<value>` blocks promotion. Strata are not discovered post hoc.
+The output reports WIS differences for every registered value. If the pooled candidate improves but a registered stratum's mean does not, and that stratum's origin block-bootstrap lower bound lies above the pooled mean difference, `material_stratum_loss:<field>=<value>` blocks promotion. A non-improving stratum within noise of the pooled gain is reported (`distinguishable_loss: false`) but does not block, so registering more strata does not by itself make promotion harder. Strata are not discovered post hoc.
 
 ## Availability evidence
 

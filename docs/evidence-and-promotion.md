@@ -50,8 +50,8 @@ Failure status: point forecast may remain evaluable; probabilistic promotion fai
 - At least 60% of registered origins favor the candidate.
 - The 95% uncertainty interval for the mean paired difference excludes no improvement for `promoted`; otherwise the result can be `challenger`.
 - Removing the best origin does not reverse the overall point estimate for `promoted`.
-- Coverage degradation is no more than 5 percentage points at the registered nominal level unless the interval-width tradeoff was prespecified.
-- Horizon-specific results do not hide a material loss in an operationally important horizon.
+- Coverage does not fall by more than 5 percentage points at the registered nominal level with an origin block-bootstrap interval below zero, unless the interval-width tradeoff was prespecified.
+- No registered horizon or stratum is non-improving with a block-bootstrap lower bound above the pooled mean difference.
 - Results are not dependent on one unregistered hyperparameter or transform cell.
 
 ### Gate F — confirmation

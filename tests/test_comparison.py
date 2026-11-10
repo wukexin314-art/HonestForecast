@@ -8,6 +8,7 @@ from honestforecast.comparison import (
     append_decision,
     bootstrap_block_length,
     compare_feature_family,
+    distinguishable_subgroup_loss,
 )
 from honestforecast.synthetic import _shifted_predictions
 
@@ -68,6 +69,23 @@ class ComparisonTests(unittest.TestCase):
         centered = [v - sum(values) / 64 for v in values]
         iid_half_width = 1.96 * (sum(v * v for v in centered) / 64) ** 0.5 / 8
         self.assertGreater((upper - lower) / 2, 1.3 * iid_half_width)
+
+    def test_subgroup_loss_requires_evidence_against_pooled_gain(self):
+        origins = [f"2025-01-{day:02d}" for day in range(1, 21)]
+        noisy = {o: (1.0 if i % 2 else -0.9) for i, o in enumerate(origins)}
+        clear = {o: 0.5 for o in origins}
+        self.assertFalse(distinguishable_subgroup_loss(noisy, -0.1, 500, 1)[0])
+        self.assertTrue(distinguishable_subgroup_loss(clear, -0.1, 500, 1)[0])
+
+    def test_coverage_veto_ignores_a_few_misses_but_not_a_systematic_loss(self):
+        baseline = _shifted_predictions([0.0] * 20)
+        two_misses = _shifted_predictions([2.5, 2.5] + [0.0] * 18)
+        half_missed = _shifted_predictions([2.5, 0.0] * 10)
+        noisy = compare_feature_family("x", baseline, two_misses, bootstrap_repetitions=500)
+        clear = compare_feature_family("x", baseline, half_missed, bootstrap_repetitions=500)
+        self.assertLess(noisy.coverage_difference, -0.05)
+        self.assertNotIn("coverage_degradation", noisy.warnings)
+        self.assertIn("coverage_degradation", clear.warnings)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,15 @@
+{
+  "study_id": "india-dengue-prospective-2027",
+  "candidate": {
+    "id": "digital_proxies",
+    "kind": "feature"
+  },
+  "confirmation_window": {
+    "start": "2026-11-10",
+    "end": "2027-11-10"
+  },
+  "registered_strata": [],
+  "bootstrap_repetitions": 1000,
+  "seed": 20261109,
+  "audit_checks": []
+}

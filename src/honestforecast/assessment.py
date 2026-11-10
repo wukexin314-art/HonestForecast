@@ -16,7 +16,7 @@ from .audit import (
     assert_no_future_vintage,
     case_key,
 )
-from .comparison import append_decision, compare_candidate
+from .comparison import append_decision, compare_candidate, distinguishable_subgroup_loss
 from .contracts import (
     FeatureSpec,
     ForecastContract,
@@ -265,6 +265,9 @@ def _stratum_differences(
     baseline: Sequence[Mapping[str, object]],
     candidate: Sequence[Mapping[str, object]],
     strata: Sequence[str],
+    pooled_mean: float,
+    bootstrap_repetitions: int,
+    seed: int,
 ) -> List[Dict[str, object]]:
     baseline_by_key = {case_key(row): row for row in baseline}
     candidate_by_key = {case_key(row): row for row in candidate}
@@ -272,7 +275,7 @@ def _stratum_differences(
     for field in strata:
         if not field.strip():
             raise AssessmentError("stratum names must be non-empty")
-        grouped: Dict[str, List[float]] = {}
+        grouped: Dict[str, Dict[str, List[float]]] = {}
         for key in sorted(baseline_by_key):
             base = baseline_by_key[key]
             cand = candidate_by_key[key]
@@ -287,18 +290,27 @@ def _stratum_differences(
                     f"stratum {field!r} differs for case {key}: "
                     f"{baseline_value!r} != {candidate_value!r}"
                 )
-            grouped.setdefault(baseline_value, []).append(
+            grouped.setdefault(baseline_value, {}).setdefault(key[0], []).append(
                 weighted_interval_score(cand) - weighted_interval_score(base)
             )
-        results.extend(
-            {
-                "stratum": field,
-                "value": value,
-                "n_cases": len(differences),
-                "mean_wis_difference": mean(differences),
-            }
-            for value, differences in sorted(grouped.items())
-        )
+        for value, by_origin in sorted(grouped.items()):
+            differences = [d for values in by_origin.values() for d in values]
+            loss, lower = distinguishable_subgroup_loss(
+                {origin: mean(values) for origin, values in by_origin.items()},
+                pooled_mean,
+                bootstrap_repetitions,
+                seed,
+            )
+            results.append(
+                {
+                    "stratum": field,
+                    "value": value,
+                    "n_cases": len(differences),
+                    "mean_wis_difference": mean(differences),
+                    "bootstrap_95_lower": lower,
+                    "distinguishable_loss": loss,
+                }
+            )
     return results
 
 
@@ -441,11 +453,14 @@ def assess(
         bootstrap_repetitions=bootstrap_repetitions,
         seed=seed,
     )
-    stratum_rows = _stratum_differences(baseline, candidate, registered_strata)
+    stratum_rows = _stratum_differences(
+        baseline, candidate, registered_strata,
+        decision.mean_wis_difference, bootstrap_repetitions, seed,
+    )
     stratum_warnings = tuple(
         f"material_stratum_loss:{row['stratum']}={row['value']}"
         for row in stratum_rows
-        if decision.mean_wis_difference < 0 and row["mean_wis_difference"] >= 0
+        if decision.mean_wis_difference < 0 and row["distinguishable_loss"]
     )
     if stratum_warnings:
         decision = replace(

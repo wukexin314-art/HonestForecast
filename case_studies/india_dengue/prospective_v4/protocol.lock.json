@@ -1,0 +1,31 @@
+{
+  "code_sha256": {
+    "assessment.py": "36b4848a8541cfabaf0a465d349317aad019e6dabb4c8baae19f9619ef4d14ef",
+    "audit.py": "9b12f20bd3d2bfe3299ee51849e373e60f743f8fb375ccd3246ed8083b4093e1",
+    "comparison.py": "0d3be7e8efdeaa32ac53132e5739798b99a30cfc67a4eb83e847ef27fbfaf7de",
+    "metrics.py": "1f17dca3e41bcfe5d8652bf0b0127469cf76ae7203f0ad8b7e6ffa3f18ab727f"
+  },
+  "input_sha256": {
+    "contract": "53094132f9f9fe3611ad44612a71fe41c5cb18f46bd87057a430f386cd3a6e09",
+    "protocol": "e2cbc5b18ee689d7516d502fd87c6c7cc6f6781dc25057f69ed0ef5ecbd10d60"
+  },
+  "protocol": {
+    "audit_checks": [],
+    "bootstrap_repetitions": 1000,
+    "candidate": {
+      "id": "digital_proxies",
+      "kind": "feature"
+    },
+    "confirmation_window": {
+      "end": "2027-11-10",
+      "start": "2026-11-10"
+    },
+    "registered_strata": [],
+    "seed": 20261109,
+    "study_id": "india-dengue-prospective-2027"
+  },
+  "registered_at": "2026-11-10T21:16:37.893899Z",
+  "registration_sha256": "e5679faa43073420f79b611bb015660ad637041c6be2b1b970d332f2f354331b",
+  "schema_version": "1.1",
+  "timestamp_authority": "local_clock_untrusted"
+}

@@ -7,15 +7,15 @@ This follows the [v1 sealed retrospective](../us_flu/REPORT.md), which ruled out
 1. It uses the feature's **timeliness**: the partial current week, which v1 never used.
 2. It enters pageviews as **growth** (partial-week rate vs the last full week), so traffic drift cancels.
 3. It sets interval spread from each method's own **out-of-sample errors**, scored against values released by the origin.
-4. It registers an **activity stratum** (as-of wILI ≥ 3 at the origin). A material loss in either the high or the low group blocks promotion.
+4. It registers an **activity stratum** (as-of wILI ≥ 3 at the origin). A loss in either the high or the low group that is distinguishable from the pooled gain blocks promotion.
 
-Registration digest (`registration_sha256` in `prospective_r2/protocol.lock.json`):
+Registration digest (`registration_sha256` in `prospective_r3/protocol.lock.json`):
 
 ```
-3c44ec850a0d7e705e29e6a11d0fa20039b28cd0e4a083626224abac128cf83d
+e941a93407fac9f919d236324f1bf01b8744508510b592d3a5b37aabce7aaf7d
 ```
 
-This lock supersedes `prospective/protocol.lock.json` (`ee5dc3b3e549de81e00db5a65d061aa1eb6bae155a0e84770413acbf0915220a`), registered the same day, before the first confirmation origin. The design, contract and manifest are byte-identical. Only the pinned `comparison.py` changed: the origin bootstrap is now a circular block bootstrap, because neighbouring weekly origins are autocorrelated. The old folder is kept.
+This lock supersedes two earlier locks registered the same day, before the first confirmation origin: `prospective/` (`ee5dc3b3e549de81e00db5a65d061aa1eb6bae155a0e84770413acbf0915220a`) and `prospective_r2/` (`3c44ec850a0d7e705e29e6a11d0fa20039b28cd0e4a083626224abac128cf83d`). The design, contract and manifest are byte-identical in all three. Only the pinned decision code changed: r2 made the origin bootstrap a circular block bootstrap, because neighbouring weekly origins are autocorrelated; r3 also requires evidence beyond noise before the coverage, horizon or stratum rules can veto (see `skills/honest-forecast/references/promotion-gates.md`). The old folders are kept.
 
 **This is a true prospective test.** Confirmation origins are ILINet releases from **2026-11-13** (the first release after this folder was pushed) to 2027-05-31. None of their outcomes existed at registration.
 
@@ -72,13 +72,13 @@ The growth feature does carry signal. Its correlation with next-week national wI
 honestforecast-flu-nowcast fetch
 honestforecast-flu-nowcast run --split confirmation --output-dir build/nowcast-confirmation
 honestforecast assess \
-  --contract case_studies/us_flu_nowcast/prospective_r2/forecast_contract.json \
-  --manifest case_studies/us_flu_nowcast/prospective_r2/feature_manifest.csv \
+  --contract case_studies/us_flu_nowcast/prospective_r3/forecast_contract.json \
+  --manifest case_studies/us_flu_nowcast/prospective_r3/feature_manifest.csv \
   --baseline build/nowcast-confirmation/predictions_ar.csv \
   --candidate build/nowcast-confirmation/predictions_ar_wiki_nowcast.csv \
   --availability build/nowcast-confirmation/availability.csv \
   --candidate-id wikipedia_influenza_nowcast --candidate-kind feature \
   --stratum activity \
-  --registration case_studies/us_flu_nowcast/prospective_r2/protocol.lock.json \
+  --registration case_studies/us_flu_nowcast/prospective_r3/protocol.lock.json \
   --all-audit-gates-passed --output build/nowcast-assessment
 ```
