@@ -1,0 +1,2 @@
+feature_id,family,version,availability_class,minimum_reporting_lag,vintage_policy,state
+search_signal,digital_proxy,1,observed_with_lag,1 month,snapshot_every_fetch,candidate

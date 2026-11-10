@@ -23,6 +23,15 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Synthetic known-answer run
         run: honestforecast-synthetic --output-dir /tmp/honestforecast-synthetic
+      - name: Generic assessment smoke test
+        run: |
+          honestforecast assess \
+            --contract examples/assessment/forecast_contract.json \
+            --manifest examples/assessment/feature_manifest.csv \
+            --baseline examples/assessment/baseline_predictions.csv \
+            --candidate examples/assessment/candidate_predictions.csv \
+            --availability examples/assessment/availability.csv \
+            --output /tmp/honestforecast-assessment
       - name: Public safety and package metadata
         run: |
           python scripts/public_safety_scan.py

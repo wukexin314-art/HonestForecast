@@ -1,5 +1,6 @@
 """Audit-friendly forecasting research primitives."""
 
+from .assessment import AssessmentError, assess
 from .audit import (
     AuditError,
     assert_common_grid,
@@ -14,6 +15,7 @@ from .screening import ScreeningError, screen_candidates
 from .vintages import GitSnapshot, SnapshotAudit, VintageError, audit_snapshots
 
 __all__ = [
+    "AssessmentError",
     "AuditError",
     "ContractError",
     "FeatureSpec",
@@ -27,6 +29,7 @@ __all__ = [
     "SnapshotAudit",
     "VintageError",
     "append_decision",
+    "assess",
     "as_of_join",
     "assert_common_grid",
     "assert_no_future_availability",
@@ -40,4 +43,4 @@ __all__ = [
     "screen_candidates",
 ]
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"

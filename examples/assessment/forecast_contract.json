@@ -1,0 +1,8 @@
+{
+  "study_id": "portable-feature-admission-demo",
+  "target_name": "monthly activity",
+  "frequency": "monthly",
+  "horizons": [1],
+  "primary_metric": "WIS",
+  "development_only_selection": true
+}

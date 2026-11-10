@@ -42,12 +42,34 @@ HonestForecast has no runtime dependencies outside the Python standard library.
 ```bash
 git clone https://github.com/wukexin314-art/HonestForecast.git
 cd HonestForecast
-python3 -m pip install -e .
-python3 -m unittest discover -s tests -v
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install .
+python -m unittest discover -s tests -v
 honestforecast-synthetic --output-dir build/synthetic
 ```
 
 The synthetic experiment injects known defects and writes predictions, regenerated metrics, feature lineage, an audit receipt, and an evidence card. In the current deterministic benchmark, naive candidate search falsely promotes 17 of 40 null-feature experiments; the registered workflow promotes 0 of 40.
+
+## Assess predictions from any model
+
+HonestForecast can audit paired probabilistic predictions produced by skforecast, scikit-learn, R, a spreadsheet, or a custom model:
+
+```bash
+honestforecast assess \
+  --contract examples/assessment/forecast_contract.json \
+  --manifest examples/assessment/feature_manifest.csv \
+  --baseline examples/assessment/baseline_predictions.csv \
+  --candidate examples/assessment/candidate_predictions.csv \
+  --availability examples/assessment/availability.csv \
+  --output build/assessment
+```
+
+The command requires an exact evaluation grid, validates forecast quantiles and origin-level feature availability, runs paired robustness checks, appends the decision, and emits an evidence card. See the [portable assessment guide](docs/assessment.md) for schemas and interpretation.
+
+## Codex Skill
+
+The repository includes a reusable Codex Skill at [`skills/honest-forecast`](skills/honest-forecast). The Python package remains the deterministic calculation layer; the Skill guides Codex through contracts, availability evidence, fail-closed validation, promotion interpretation, and evidence reporting without duplicating the statistics in prompts.
 
 ## Evidence chain
 
@@ -93,15 +115,16 @@ See the [landscape review](docs/landscape.md) for the nearest projects, overlaps
 ```text
 src/honestforecast/               core package and three CLIs
 tests/                            unit and committed-artifact checks
-examples/                         forecast contract and feature manifest
+examples/                         contracts, manifests, and portable assessment inputs
 case_studies/india_dengue/        public reports and machine-readable evidence
 docs/                             protocol, feature engineering, landscape, provenance
 scripts/public_safety_scan.py     private-artifact guard
+skills/honest-forecast/           reusable Codex workflow and references
 ```
 
 ## Status
 
-Version 0.3.0 is research alpha software. The India pilot has only seven scored origins and uses repository-state rather than source-native vintages. A longer prospective window is required before an effectiveness claim.
+Version 0.4.0 is research alpha software. The India pilot has only seven scored origins and uses repository-state rather than source-native vintages. A longer prospective window is required before an effectiveness claim.
 
 ## License and citation
 

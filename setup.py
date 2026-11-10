@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="honestforecast",
-    version="0.3.0",
+    version="0.4.0",
     description="Evidence-first feature engineering for auditable forecasting research",
     long_description=(__import__("pathlib").Path(__file__).parent / "README.md").read_text(),
     long_description_content_type="text/markdown",
@@ -28,6 +28,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
+            "honestforecast=honestforecast.assessment:main",
             "honestforecast-synthetic=honestforecast.synthetic:main",
             "honestforecast-vintage-audit=honestforecast.vintages:main",
             "honestforecast-dengue-pilot=honestforecast.dengue_case:main",

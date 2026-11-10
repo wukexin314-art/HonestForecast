@@ -13,9 +13,17 @@ HonestForecast accepts focused changes that strengthen point-in-time validity, f
 ## Local checks
 
 ```bash
+python -m pip install --upgrade pip
 python -m pip install -e .
 python -m unittest discover -s tests -v
 honestforecast-synthetic --output-dir build/synthetic
+honestforecast assess \
+  --contract examples/assessment/forecast_contract.json \
+  --manifest examples/assessment/feature_manifest.csv \
+  --baseline examples/assessment/baseline_predictions.csv \
+  --candidate examples/assessment/candidate_predictions.csv \
+  --availability examples/assessment/availability.csv \
+  --output build/assessment
 python scripts/public_safety_scan.py
 python setup.py check --strict
 ```
