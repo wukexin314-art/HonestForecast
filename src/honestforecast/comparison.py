@@ -76,6 +76,7 @@ def compare_feature_family(
     bootstrap_repetitions: int = 1000,
     seed: int = 20261109,
 ) -> FamilyDecision:
+    """Compare predictions; promotion is reserved for the registered assessment API."""
     baseline = validate_prediction_rows(baseline_rows)
     candidate = validate_prediction_rows(candidate_rows)
     assert_common_grid(baseline, candidate)
@@ -124,13 +125,7 @@ def compare_feature_family(
     if mean_wis < 0 and any(mean(values) >= 0 for values in horizon_differences.values()):
         warnings.append("material_horizon_loss")
 
-    robust = not warnings and mean_wis < 0
-    if robust and confirmation_frozen and all_audit_gates_passed:
-        state = "promoted"
-    elif mean_wis < 0:
-        state = "challenger"
-    else:
-        state = "rejected"
+    state = "challenger" if mean_wis < 0 else "rejected"
     return FamilyDecision(
         family=family,
         state=state,

@@ -464,6 +464,13 @@ def assess(
             state="challenger" if decision.state == "promoted" else decision.state,
             warnings=decision.warnings + tuple(evidence_warnings),
         )
+    if (
+        decision.mean_wis_difference < 0
+        and not decision.warnings
+        and effective_confirmation
+        and effective_audit_gates
+    ):
+        decision = replace(decision, state="promoted")
     baseline_metrics = summarize_predictions(baseline)
     candidate_metrics = summarize_predictions(candidate)
     metric_rows = [

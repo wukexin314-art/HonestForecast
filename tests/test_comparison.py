@@ -36,13 +36,13 @@ class ComparisonTests(unittest.TestCase):
             self.assertEqual(len(rows), 2)
             self.assertTrue(all(row["state"] == "rejected" for row in rows))
 
-    def test_promotion_requires_confirmation_and_all_audit_gates(self):
+    def test_low_level_comparison_cannot_promote(self):
         baseline = _shifted_predictions([5.0] * 8)
         candidate = _shifted_predictions([1.0] * 8)
         challenger = compare_feature_family(
             "good_proxy", baseline, candidate, bootstrap_repetitions=50
         )
-        promoted = compare_feature_family(
+        claimed = compare_feature_family(
             "good_proxy",
             baseline,
             candidate,
@@ -51,7 +51,7 @@ class ComparisonTests(unittest.TestCase):
             bootstrap_repetitions=50,
         )
         self.assertEqual(challenger.state, "challenger")
-        self.assertEqual(promoted.state, "promoted")
+        self.assertEqual(claimed.state, "challenger")
 
 
 if __name__ == "__main__":
