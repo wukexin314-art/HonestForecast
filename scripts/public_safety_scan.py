@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SKIP_PARTS = {".git", "build", "dist", "__pycache__"}
-TEXT_SUFFIXES = {".csv", ".json", ".md", ".py", ".toml", ".txt", ".yaml", ".yml", ".cff"}
+TEXT_SUFFIXES = {".csv", ".json", ".jsonl", ".md", ".py", ".toml", ".txt", ".yaml", ".yml", ".cff"}
 PATTERNS = {
     "absolute_user_path": re.compile(r"/(?:Users|home)/[^/\s]+/"),
     "credential_assignment": re.compile(
