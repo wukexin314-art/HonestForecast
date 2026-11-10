@@ -27,7 +27,7 @@ HonestForecast makes those failure modes explicit and testable.
 - origin-aware as-of joins for revised features;
 - registered lag, trailing-mean, momentum, log, and Fourier transforms;
 - fold-local imputation and clipping with lineage;
-- development-cutoff enforcement, circular-shift nulls, stability checks, and BH-FDR;
+- development-cutoff enforcement, block-permutation nulls, stability checks, and BH-FDR;
 - MAE, WIS, interval coverage, and exact common-grid validation;
 - paired candidate comparison, origin bootstrap, horizon and registered-stratum sensitivity;
 - optional multi-series `unit` keys for locations, sites, products, or populations;
@@ -52,7 +52,7 @@ python -m unittest discover -s tests -v
 honestforecast-synthetic --output-dir build/synthetic
 ```
 
-The synthetic experiment injects known defects and writes predictions, regenerated metrics, feature lineage, an audit receipt, and an evidence card. In the current deterministic benchmark, naive candidate search falsely promotes 17 of 40 null-feature experiments; the registered workflow promotes 0 of 40. The [power study](case_studies/synthetic_power/REPORT.md) shows that this 0 is partly forced: at 48 development months the screening stage cannot pass even a truly predictive lag, because the circular-shift p-value floor is 1/n. The promotion gate itself does discriminate. It releases a strong true feature 45–63% of the time and a null one 1–13% of the time, but it is weak with fewer than about 12 scored origins.
+The synthetic experiment injects known defects and writes predictions, regenerated metrics, feature lineage, an audit receipt, and an evidence card. In the current deterministic benchmark, naive candidate search falsely promotes 14 of 40 null-feature experiments; the registered workflow promotes 1 of 40. The [power study](case_studies/synthetic_power/REPORT.md) checks that the gates can also say yes. Screening finds a truly predictive lag 50% of the time at a moderate effect and 100% at a strong one. The promotion gate releases a strong true feature 45–63% of the time and a null one 1–13% of the time, so it is weak with fewer than about 12 scored origins. Version 0.6 reported 0 of 40, but its circular-shift null could not pass any single lag at this sample size; the block-permutation null replaced it.
 
 ## Assess predictions from any model
 
@@ -127,7 +127,7 @@ The India dengue case reconstructs 18 Git-preserved input snapshots from March t
 
 On the first seven comparable forecast origins, seasonal naive outperformed the small target-history ridge and digital-proxy challengers. Using latest-revised proxy histories instead of origin-matched histories changed the result and made it worse in this sample. Both feature increments remain recorded as rejected rather than being hidden.
 
-See the [pilot report](case_studies/india_dengue/pilot/REPORT.md), [vintage audit](case_studies/india_dengue/vintage_audit/REPORT.md), and machine-readable artifacts beside them. A [prospective confirmation](case_studies/india_dengue/prospective/README.md) of the digital-proxy question was locked on 2026-11-10 for origins through 2027-11-10. This is an exploratory software case, not a clinical forecast or a claim that digital traces never help.
+See the [pilot report](case_studies/india_dengue/pilot/REPORT.md), [vintage audit](case_studies/india_dengue/vintage_audit/REPORT.md), and machine-readable artifacts beside them. A [prospective confirmation](case_studies/india_dengue/prospective_v2/README.md) of the digital-proxy question was locked on 2026-11-10 for origins through 2027-11-10. This is an exploratory software case, not a clinical forecast or a claim that digital traces never help.
 
 ## Where the design came from
 

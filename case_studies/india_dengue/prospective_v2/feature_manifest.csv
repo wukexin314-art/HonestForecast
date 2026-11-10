@@ -1,0 +1,5 @@
+feature_id,family,version,availability_class,minimum_reporting_lag,vintage_policy,state
+google_trends_dengue_fever,digital_proxies,1,observed_with_lag,0 months,git_snapshot_each_update,candidate
+google_trends_dengue_vaccine,digital_proxies,1,observed_with_lag,0 months,git_snapshot_each_update,candidate
+wikipedia_total_dengue_views,digital_proxies,1,observed_with_lag,0 months,git_snapshot_each_update,candidate
+wikipedia_mosquito_views_total,digital_proxies,1,observed_with_lag,0 months,git_snapshot_each_update,candidate

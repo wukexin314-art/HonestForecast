@@ -1,7 +1,10 @@
 import json
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
+
+from honestforecast import registration
 
 from honestforecast.registration import (
     RegistrationError,
@@ -56,12 +59,27 @@ class RegistrationTests(unittest.TestCase):
             register_protocol(
                 protocol, contract, lock, registered_at="2025-01-01T00:00:00Z"
             )
-            self.assertEqual(load_registration(lock)["schema_version"], "1.0")
+            self.assertEqual(load_registration(lock)["schema_version"], "1.1")
             data = json.loads(lock.read_text())
             data["protocol"]["seed"] = 8
             lock.write_text(json.dumps(data))
             with self.assertRaisesRegex(RegistrationError, "registration_sha256"):
                 load_registration(lock)
+
+    def test_registration_detects_decision_code_change(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            contract, protocol = self._files(root)
+            lock = root / "protocol.lock.json"
+            register_protocol(protocol, contract, lock, registered_at="2025-01-01T00:00:00Z")
+            edited = {**registration.decision_code_hashes(), "comparison.py": "0" * 64}
+            with mock.patch.object(registration, "decision_code_hashes", return_value=edited):
+                with self.assertRaisesRegex(RegistrationError, "comparison.py"):
+                    registration.validate_registration(
+                        lock, contract_path=contract, study_id="study",
+                        candidate_id="candidate", candidate_kind="model", strata=(),
+                        bootstrap_repetitions=50, seed=7, origins=["2025-06-01"],
+                    )
 
     def test_assessment_settings_must_match_registration(self):
         with tempfile.TemporaryDirectory() as directory:

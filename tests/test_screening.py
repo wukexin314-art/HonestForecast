@@ -1,4 +1,5 @@
 import math
+import random
 import unittest
 
 from honestforecast.screening import ScreeningError, screen_candidates, spearman
@@ -25,6 +26,24 @@ class ScreeningTests(unittest.TestCase):
         self.assertTrue(result["multiplicity_warning"])
         self.assertEqual(result["tested_variants"], 4)
         self.assertTrue(all("adjusted_pvalue" in row for row in result["results"]))
+
+    def test_one_true_lag_among_nulls_can_pass(self):
+        # Circular shifts had a 1/n p-value floor, so BH over 4 candidates could never pass at n=40.
+        generator = random.Random(3)
+        target = [generator.gauss(0, 1) for _ in range(40)]
+        candidates = {
+            name: [
+                {"date": f"{2020 + i // 12}-{i % 12 + 1:02d}-01", "feature": value, "target": target[i]}
+                for i, value in enumerate(feature)
+            ]
+            for name, feature in {
+                "true": [t + generator.gauss(0, 0.3) for t in target],
+                **{f"null_{k}": [generator.gauss(0, 1) for _ in target] for k in range(3)},
+            }.items()
+        }
+        result = screen_candidates(candidates, development_end="2023-12-01")
+        eligible = {row["feature_id"] for row in result["results"] if row["eligible"]}
+        self.assertEqual(eligible, {"true"})
 
     def test_screening_rejects_confirmation_rows(self):
         with self.assertRaises(ScreeningError):

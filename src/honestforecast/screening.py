@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import random
 from dataclasses import asdict, dataclass
 from datetime import date
 from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
@@ -40,10 +41,33 @@ def spearman(x: Sequence[float], y: Sequence[float]) -> float:
     return 0.0 if denominator == 0 else numerator / denominator
 
 
-def circular_shift_pvalue(x: Sequence[float], y: Sequence[float]) -> float:
-    observed = abs(spearman(x, y))
-    null = [abs(spearman(x, y[shift:] + y[:shift])) for shift in range(1, len(y))]
-    return (1 + sum(value >= observed for value in null)) / (len(null) + 1)
+def block_permutation_pvalue(
+    x: Sequence[float], y: Sequence[float], draws: int = 999, seed: int = 20261109
+) -> float:
+    """Two-sided Spearman p-value under a rotate-then-shuffle-blocks null.
+
+    Blocks of about sqrt(n) keep short-range autocorrelation; unlike all n - 1
+    circular shifts, the p-value floor is 1 / (draws + 1) rather than 1 / n.
+    """
+    spearman(x, y)  # validates lengths
+    n = len(y)
+    x_rank, y_rank = _rank(x), _rank(y)
+    x_mean, y_mean = sum(x_rank) / n, sum(y_rank) / n
+    cx = [value - x_mean for value in x_rank]
+    cy = [value - y_mean for value in y_rank]
+    # Permuting y leaves both sums of squares unchanged, so |numerator| ranks the null.
+    observed = abs(sum(a * b for a, b in zip(cx, cy)))
+    block = max(1, round(math.sqrt(n)))
+    generator = random.Random(seed)
+    exceed = 0
+    for _ in range(draws):
+        shift = generator.randrange(n)
+        rotated = cy[shift:] + cy[:shift]
+        blocks = [rotated[start:start + block] for start in range(0, n, block)]
+        generator.shuffle(blocks)
+        permuted = [value for chunk in blocks for value in chunk]
+        exceed += abs(sum(a * b for a, b in zip(cx, permuted))) >= observed - 1e-12
+    return (1 + exceed) / (draws + 1)
 
 
 @dataclass(frozen=True)
@@ -55,7 +79,7 @@ class ScreenResult:
     spearman: float
     early_spearman: float
     later_spearman: float
-    circular_pvalue: float
+    null_pvalue: float
     adjusted_pvalue: float
     sign_stable: bool
     eligible: bool
@@ -99,7 +123,7 @@ def _screen(feature_id: str, rows: Iterable[Mapping[str, object]], min_coverage:
         spearman=overall,
         early_spearman=early,
         later_spearman=later,
-        circular_pvalue=circular_shift_pvalue(x, y),
+        null_pvalue=block_permutation_pvalue(x, y),
         adjusted_pvalue=1.0,
         sign_stable=stable,
         eligible=not reasons,
@@ -151,7 +175,7 @@ def screen_candidates(
         _screen(feature_id, rows, min_coverage)
         for feature_id, rows in materialized_candidates.items()
     ]
-    adjusted = _bh_adjust([result.circular_pvalue for result in results])
+    adjusted = _bh_adjust([result.null_pvalue for result in results])
     final: List[ScreenResult] = []
     for result, adjusted_pvalue in zip(results, adjusted):
         reasons = list(result.reasons)

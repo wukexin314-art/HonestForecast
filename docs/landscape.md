@@ -39,7 +39,7 @@ Version 0.6 also applies the same common-grid, robustness, and append-only decis
 The current implementation links capabilities that the nearest projects generally expose separately:
 
 1. A feature output must resolve to a source, version, availability rule, transform, and training-fit window.
-2. Screening rejects rows after a declared development cutoff and reports time-block sign stability, circular-shift null evidence, and BH-FDR.
+2. Screening rejects rows after a declared development cutoff and reports time-block sign stability, block-permutation null evidence, and BH-FDR.
 3. A candidate comparison fails unless baseline and candidate share the exact origin/target/horizon/unit grid.
 4. Promotion considers paired WIS, MAE, origin-level improvement, bootstrap uncertainty, coverage degradation, horizon loss, registered-stratum loss, and drop-best-origin sensitivity.
 5. Rejected families remain in an append-only log, reducing repeated unreported searches.

@@ -107,6 +107,16 @@ def _load_contract(path: Path) -> ForecastContract:
     return ForecastContract.from_mapping(data)
 
 
+# Modules whose bytes decide scores and promotion; a lock pins them so rules cannot change after registration.
+# shortcut: any edit to these files (even a comment) invalidates open locks, upgrade to AST hashing if that bites.
+DECISION_CODE = ("assessment.py", "audit.py", "comparison.py", "metrics.py")
+
+
+def decision_code_hashes() -> Dict[str, str]:
+    package = Path(__file__).resolve().parent
+    return {name: sha256_file(package / name) for name in DECISION_CODE}
+
+
 def register_protocol(
     protocol_path: Path,
     contract_path: Path,
@@ -127,7 +137,7 @@ def register_protocol(
     except ValueError as exc:
         raise RegistrationError("registered_at must be an ISO timestamp") from exc
     lock: Dict[str, object] = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "registered_at": timestamp,
         "timestamp_authority": "local_clock_untrusted",
         "protocol": protocol,
@@ -135,6 +145,7 @@ def register_protocol(
             "protocol": sha256_file(protocol_path),
             "contract": sha256_file(contract_path),
         },
+        "code_sha256": decision_code_hashes(),
     }
     lock["registration_sha256"] = canonical_hash(lock)
     output_path = Path(output_path)
@@ -152,7 +163,7 @@ def load_registration(path: Path) -> Dict[str, object]:
     unsigned.pop("registration_sha256", None)
     if canonical_hash(unsigned) != digest:
         raise RegistrationError("registration_sha256 does not match lock contents")
-    if lock.get("schema_version") != "1.0":
+    if lock.get("schema_version") not in {"1.0", "1.1"}:
         raise RegistrationError("unsupported registration schema_version")
     timestamp = _text(lock.get("registered_at"), "registered_at")
     try:
@@ -167,6 +178,8 @@ def load_registration(path: Path) -> Dict[str, object]:
     inputs = lock.get("input_sha256")
     if not isinstance(inputs, dict) or not isinstance(inputs.get("contract"), str):
         raise RegistrationError("registration is missing its contract hash")
+    if lock["schema_version"] == "1.1" and not isinstance(lock.get("code_sha256"), dict):
+        raise RegistrationError("registration is missing its decision-code hashes")
     return lock
 
 
@@ -199,6 +212,13 @@ def validate_registration(
             )
     if lock["input_sha256"]["contract"] != sha256_file(contract_path):
         raise RegistrationError("forecast contract changed after registration")
+    if "code_sha256" in lock:  # 1.0 locks predate code pinning
+        changed = sorted(
+            name for name, digest in decision_code_hashes().items()
+            if lock["code_sha256"].get(name) != digest
+        )
+        if changed:
+            raise RegistrationError(f"decision code changed after registration: {changed}")
     start = date.fromisoformat(protocol["confirmation_window"]["start"])
     end = date.fromisoformat(protocol["confirmation_window"]["end"])
     try:

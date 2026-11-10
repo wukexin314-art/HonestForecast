@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 
@@ -20,12 +21,18 @@ PATTERNS = {
 
 def main() -> None:
     findings = []
-    for path in ROOT.rglob("*"):
+    # Everything git could commit: tracked files plus untracked ones not covered by .gitignore.
+    listed = subprocess.check_output(
+        ["git", "-C", str(ROOT), "ls-files", "--cached", "--others", "--exclude-standard", "-z"]
+    ).decode("utf-8").split("\0")
+    for path in (ROOT / name for name in listed if name):
         if not path.is_file() or any(part in SKIP_PARTS for part in path.parts):
             continue
         if path.resolve() == Path(__file__).resolve():
             continue
-        if path.suffix.lower() not in TEXT_SUFFIXES and path.name not in {"LICENSE"}:
+        if path.suffix.lower() not in TEXT_SUFFIXES and path.name not in {"LICENSE", ".gitignore"}:
+            # Binary or unknown files (xlsx, zip, parquet, ...) cannot be scanned, so they are refused.
+            findings.append(f"{path.relative_to(ROOT)}: unscannable_file_type")
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
         for name, pattern in PATTERNS.items():

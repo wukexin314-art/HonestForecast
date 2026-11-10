@@ -97,7 +97,7 @@ def null_feature_experiment(repetitions: int = 40, effect: float = 0.0) -> Dict[
             candidates, development_end="2023-12-01", registered_variants=3
         )
         warning_detected = warning_detected or bool(screened["multiplicity_warning"])
-        if any(result["circular_pvalue"] <= 0.05 for result in screened["results"]):
+        if any(result["null_pvalue"] <= 0.05 for result in screened["results"]):
             naive_promotions += 1
         if any(result["eligible"] for result in screened["results"]):
             honest_promotions += 1

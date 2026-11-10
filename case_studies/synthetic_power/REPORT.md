@@ -31,22 +31,20 @@ Findings:
 
 ## Screening stage (`screening_power.csv`)
 
-Same 12-lag search as the original null experiment, with lag 2 made truly predictive (200 replicates):
+Same 12-lag search as the original null experiment, with lag 2 made truly predictive (200 replicates). Current method, a block-permutation null:
 
 | effect | naive "any lag p ≤ 0.05" | honest: any lag eligible | honest: true lag eligible |
 | --- | ---: | ---: | ---: |
-| 0 | 0.41 | 0.00 | 0.00 |
-| 0.25 | 0.55 | 0.00 | 0.00 |
-| 0.5 | 0.84 | 0.00 | 0.00 |
-| 1.0 | 1.00 | 0.00 | 0.00 |
+| 0 | 0.41 | 0.035 | 0.005 |
+| 0.25 | 0.59 | 0.11 | 0.095 |
+| 0.5 | 0.87 | 0.51 | 0.50 |
+| 1.0 | 1.00 | 1.00 | 1.00 |
 
-**The screening stage cannot release a single true lag at this sample size.** The circular-shift p-value is at least `1/n` (n − 1 shifts). With n = 46 the floor is 0.0217. Benjamini–Hochberg across 12 candidates then requires the smallest p-value to be at most 0.05/12 ≈ 0.0042. This holds even for a perfectly correlated feature, which gets an adjusted p of 0.26. A lone true lag can only pass with at least `20 × m` usable rows (240 for m = 12 candidates).
+The false-release rate under the null is 3.5%, close to the 5% BH target, and a true lag is now found once its effect is moderate.
 
-So the existing "0 of 40 null features promoted" result is guaranteed by this floor, not earned by discrimination. Ways to fix it, all open design decisions:
+**Fixed defect (v0.6 circular-shift null).** Before this change, honest screening released nothing at any effect size, 0.00 in every row. The circular-shift p-value is at least `1/n` (n − 1 shifts). With n = 46 the floor is 0.0217. Benjamini–Hochberg across 12 candidates then requires the smallest p-value to be at most 0.05/12 ≈ 0.0042. Even a perfectly correlated feature got an adjusted p of 0.26. So the old "0 of 40" result was guaranteed by that floor.
 
-- register fewer candidates, so m is smaller;
-- screen on a longer development window;
-- replace the circular-shift null with one whose resolution does not depend on n (for example a block-permutation null with many draws).
+`screening.block_permutation_pvalue` fixes this. It rotates the target at a random offset, shuffles blocks of about √n to keep short-range autocorrelation, and takes 999 seeded draws, so the floor is 0.001. The result field is renamed `circular_pvalue` → `null_pvalue`.
 
 ## Limits
 
