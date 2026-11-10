@@ -129,7 +129,7 @@ On the first seven comparable forecast origins, seasonal naive outperformed the 
 
 See the [pilot report](case_studies/india_dengue/pilot/REPORT.md), [vintage audit](case_studies/india_dengue/vintage_audit/REPORT.md), and machine-readable artifacts beside them. A [prospective confirmation](case_studies/india_dengue/prospective_v2/README.md) of the digital-proxy question was locked on 2026-11-10 for origins through 2027-11-10. This is an exploratory software case, not a clinical forecast or a claim that digital traces never help.
 
-A second case uses **source-native vintages**: CDC ILINet wILI from Delphi's release archive, which records each value change with its real release date, for the US and 10 HHS regions. A [sealed retrospective](case_studies/us_flu/REPORT.md) was registered before scoring. Over 64 origins in 2024/25–2025/26, Wikipedia "Influenza" pageviews were `rejected` (WIS +0.0018, 95% interval −0.0023 to +0.0065), and backtesting on latest-revised history overstated skill by 2–6%.
+A second case uses **source-native vintages**: CDC ILINet wILI from Delphi's release archive, which records each value change with its real release date, for the US and 10 HHS regions. A [sealed retrospective](case_studies/us_flu/REPORT.md) was registered before scoring. Over 64 origins in 2024/25–2025/26, Wikipedia "Influenza" pageviews were `rejected` (WIS +0.0018, 95% interval −0.0023 to +0.0065), and backtesting on latest-revised history overstated skill by 2–6%. A [prospective follow-up](case_studies/us_flu_nowcast/README.md) uses the pageviews' timeliness (the partial current week) with calibrated intervals; it was locked on 2026-11-10 for ILINet releases from 2026-11-13 to 2027-05-31.
 
 ## Where the design came from
 

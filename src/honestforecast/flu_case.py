@@ -64,10 +64,10 @@ def _open(url: str):
     raise FluCaseError(f"still rate limited after 5 waits: {url}")
 
 
-def fetch(data_dir: Path) -> Dict[str, int]:
+def fetch(data_dir: Path, reference_range: Tuple[str, str] = REFERENCE_RANGE, daily_file: bool = False) -> Dict[str, int]:
     data_dir = Path(data_dir)
     data_dir.mkdir(parents=True, exist_ok=True)
-    first, last = REFERENCE_RANGE
+    first, last = reference_range
     changes = []
     for geo_type in ("nation", "hhs"):
         url = (
@@ -92,6 +92,13 @@ def fetch(data_dir: Path) -> Dict[str, int]:
         saturday = day + timedelta(days=(5 - day.weekday()) % 7)  # MMWR weeks run Sunday-Saturday
         weeks.setdefault(saturday.isoformat(), []).append(int(item["views"]))
     complete = sorted((week, sum(views)) for week, views in weeks.items() if len(views) == 7)
+    if daily_file:
+        with (data_dir / "wiki_influenza_en_daily.csv").open("w", newline="", encoding="utf-8") as handle:
+            writer = csv.writer(handle, lineterminator="\n")
+            writer.writerow(["day", "views"])
+            writer.writerows(
+                sorted((f"{item['timestamp'][:4]}-{item['timestamp'][4:6]}-{item['timestamp'][6:8]}", int(item["views"])) for item in daily)
+            )
     if not complete:
         raise FluCaseError("pageview API returned no complete weeks")
     with (data_dir / "wiki_influenza_en.csv").open("w", newline="", encoding="utf-8") as handle:

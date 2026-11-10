@@ -1,0 +1,49 @@
+{
+  "exploratory_decision": {
+    "bootstrap_95_lower": -0.0015749271333546017,
+    "bootstrap_95_upper": 0.00400121256260434,
+    "candidate_id": "wikipedia_influenza_nowcast",
+    "coverage_difference": -0.00034176349965830966,
+    "drop_best_origin_wis_difference": 0.0016344291310084814,
+    "family": "wikipedia_influenza_nowcast",
+    "improved_origin_proportion": 0.45864661654135336,
+    "mean_mae_difference": 0.001495775492651666,
+    "mean_wis_difference": 0.001119120974505302,
+    "n_cases": 2926,
+    "n_origins": 133,
+    "state": "rejected",
+    "warnings": [
+      "event_concentration",
+      "fewer_than_60_percent_origins_improved",
+      "uncertainty_includes_no_improvement"
+    ]
+  },
+  "metrics": {
+    "ar": {
+      "coverage_50": 0.7057416267942583,
+      "coverage_80": 0.8393711551606289,
+      "coverage_95": 0.898838004101162,
+      "mae": 0.49034925283870007,
+      "n_cases": 2926,
+      "width_50": 1.0315279889762357,
+      "width_80": 1.9409801439381893,
+      "width_95": 2.9039616966077557,
+      "wis": 0.34609152484028133
+    },
+    "ar_wiki_nowcast": {
+      "coverage_50": 0.7084757347915243,
+      "coverage_80": 0.8390293916609706,
+      "coverage_95": 0.8974709501025291,
+      "mae": 0.49184502833135174,
+      "n_cases": 2926,
+      "width_50": 1.0317808042586336,
+      "width_80": 1.9418381592501806,
+      "width_95": 2.9060230908222207,
+      "wis": 0.3472106458147866
+    }
+  },
+  "n_cases": 2926,
+  "n_origins": 133,
+  "split": "development",
+  "study_id": "us-ilinet-wiki-nowcast"
+}

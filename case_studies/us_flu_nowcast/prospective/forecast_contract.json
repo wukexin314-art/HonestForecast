@@ -1,0 +1,8 @@
+{
+  "study_id": "us-ilinet-wiki-nowcast-prospective-2026",
+  "target_name": "ILINet weighted ILI percent, latest revised",
+  "frequency": "weekly",
+  "horizons": [1, 2],
+  "primary_metric": "WIS",
+  "development_only_selection": true
+}

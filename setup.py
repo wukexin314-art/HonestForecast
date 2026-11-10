@@ -33,6 +33,7 @@ setup(
             "honestforecast-vintage-audit=honestforecast.vintages:main",
             "honestforecast-dengue-pilot=honestforecast.dengue_case:main",
             "honestforecast-flu-case=honestforecast.flu_case:main",
+            "honestforecast-flu-nowcast=honestforecast.flu_nowcast:main",
         ]
     },
 )

@@ -14,7 +14,9 @@ Design, data and frozen rules: [confirmation/README.md](confirmation/README.md).
 | Origins where wiki helped | 48% |
 | Warnings | `event_concentration`, `fewer_than_60_percent_origins_improved`, `uncertainty_includes_no_improvement` |
 
-Positive differences mean the candidate is worse. Adding Wikipedia "Influenza" pageviews did not improve forecasts at either horizon (h=1: +0.0008, h=2: +0.0029). It helped in 3 of 11 regions, which is no better than chance. The development seasons showed the same pattern: +0.0032 overall, `rejected`. This is a **well-supported null** within the stated limits: 64 origins is well beyond the about 12 that the [power study](../synthetic_power/REPORT.md) flags as too few, so a large real effect would probably have shown up.
+Positive differences mean the candidate is worse. Adding Wikipedia "Influenza" pageviews did not improve forecasts at either horizon (h=1: +0.0008, h=2: +0.0029). It helped in 3 of 11 regions, which is no better than chance. The development seasons showed the same pattern: +0.0032 overall, `rejected`. This is a **well-supported null** within the stated limits: 64 origins is well beyond the about 12 that the [power study](../synthetic_power/REPORT.md) flags as too few, so a large real effect would probably have shown up. More precisely, the lower end of the 95% interval is −0.0023, which is −0.6% of baseline WIS. **These data rule out an average improvement larger than about 0.6%** from this feature as specified.
+
+A follow-up that keeps the feature's timeliness advantage, with calibrated intervals and prospective 2026/27 origins, is in [../us_flu_nowcast/](../us_flu_nowcast/README.md).
 
 ## Vintage optimism (descriptive)
 
