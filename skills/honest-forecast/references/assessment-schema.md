@@ -20,7 +20,9 @@ honestforecast assess \
 
 Run `honestforecast register --protocol protocol.json --contract forecast_contract.json --output protocol.lock.json`. The protocol freezes the study and candidate identity, confirmation window, registered strata, bootstrap repetitions, seed, and audit-check IDs. Pass the lock to assessment with `--registration`.
 
-The lock self-hash and contract hash detect changes. The local timestamp is not trusted evidence that registration preceded outcome access.
+The lock self-hash and contract hash detect changes. Schema 1.1 locks also store `code_sha256` for `assessment.py`, `audit.py`, `comparison.py` and `metrics.py`, and `--registration` fails if any of them changed. Schema 1.0 locks still load, without the code check. Model and pipeline code is not in the lock, so pin it separately. The local timestamp is not trusted evidence that registration preceded outcome access.
+
+Screening results report `null_pvalue`, a seeded block-permutation p-value with a floor of 0.001. It was renamed from `circular_pvalue` in 0.7.0.
 
 For non-source candidates claiming all gates passed, supply `--audit-evidence`. Each check must match a registered ID, have status `passed`, and name an artifact plus its SHA256 digest.
 

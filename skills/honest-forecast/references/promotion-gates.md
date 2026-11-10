@@ -26,6 +26,26 @@ HonestForecast reports candidate minus baseline differences. Negative WIS or MAE
 
 Any registered warning prevents promotion. Do not discard a warning because a different metric or unregistered subgroup looks favorable.
 
+## Reading a rejection: power
+
+A gate can only say no if it can also say yes. From the repository's synthetic power study (`case_studies/synthetic_power/REPORT.md`, two horizons):
+
+| Scored origins | Null feature released | Strong true feature released |
+| ---: | ---: | ---: |
+| 6 | 13% | 45% |
+| 12 | 4% | 48% |
+| 24 | 3% | 57% |
+| 36 | 1% | 63% |
+
+- Below about 12 origins, a `rejected` or `challenger` result is weak evidence in either direction. Say so.
+- With enough origins, quote what the result rules out: `-bootstrap_95_lower / baseline WIS`. Example: lower bound −0.0023 on a baseline WIS of 0.3826 rules out average gains above about 0.6%.
+- `coverage_degradation` uses a fixed 5-point threshold, so with few cases one extra miss can trigger it. Report it, but note when it is the only warning.
+- A design defect is not a null result. If the candidate did not use its availability advantage, or entered a drifting source as a raw level, describe the rejection as applying to that representation only.
+
+## Vintage optimism
+
+When the source keeps release history, compare each model trained and scored on as-of history with the same model on latest-revised history. Report the WIS gap: negative means the retrospective backtest looks better than real time. If the gap differs between baseline and candidate, it can change which one wins. In the bundled cases it was 2–6% for ILINet (same for both models), and it reversed the ordering in the Git-state dengue pilot.
+
 ## Claim boundary
 
 The software verifies consistency and hashes of supplied artifacts. It does not independently verify that source timestamps, version labels, or scientific assertions inside audit artifacts are true. A local registration timestamp is not trusted chronology. State those conditions when reporting `promoted`. A predictive improvement is not evidence of causality, clinical validity, or safe deployment.

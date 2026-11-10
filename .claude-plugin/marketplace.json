@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "honestforecast",
+  "description": "HonestForecast agent skill for Claude Code.",
+  "owner": {
+    "name": "wukexin314-art",
+    "url": "https://github.com/wukexin314-art"
+  },
+  "plugins": [
+    {
+      "name": "honest-forecast",
+      "description": "Register, audit and verify whether a forecast change deserves promotion.",
+      "source": "./",
+      "category": "data"
+    }
+  ]
+}

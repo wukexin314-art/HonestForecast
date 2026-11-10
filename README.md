@@ -102,9 +102,17 @@ For multi-series predictions, add a `unit` column to both files. Register subgro
 
 The lock freezes the candidate, confirmation window, strata, bootstrap repetitions, seed, and contract hash. A local lock detects later changes but does not provide a trusted timestamp; publish its digest through a dated Git commit, release, or external registry before outcomes are opened when making a preregistration claim.
 
-## Codex Skill
+## Agent skill (Codex and Claude Code)
 
-The repository includes a reusable Codex Skill at [`skills/honest-forecast`](skills/honest-forecast). The Python package remains the deterministic calculation layer; the Skill guides Codex through contracts, availability evidence, fail-closed validation, promotion interpretation, and evidence reporting without duplicating the statistics in prompts.
+The repository includes a reusable agent skill at [`skills/honest-forecast`](skills/honest-forecast). The Python package remains the deterministic calculation layer. The skill guides the agent through evidence labels, candidate design checks (timeliness, drift, vintage optimism), development variant ledgers, protocol and code pinning, fail-closed validation, power-aware interpretation of rejections, and evidence reporting, without duplicating the statistics in prompts.
+
+In Claude Code, install it from this repository's marketplace:
+
+```text
+/plugin install honest-forecast --marketplace wukexin314-art/HonestForecast
+```
+
+On older Claude Code versions, run `/plugin marketplace add wukexin314-art/HonestForecast`, then `/plugin install honest-forecast@honestforecast`. The skill calls the `honestforecast` CLI, so install the package too (see Quick start). In Codex, the same folder works as a skill (`agents/openai.yaml`).
 
 ## Evidence chain
 

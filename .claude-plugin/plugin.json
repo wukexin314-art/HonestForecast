@@ -1,0 +1,11 @@
+{
+  "name": "honest-forecast",
+  "version": "0.7.0",
+  "description": "Evidence gates for forecast changes under delayed, revised, or drifting data: lock a design, audit point-in-time validity, and decide promotion with power-aware interpretation.",
+  "author": {
+    "name": "wukexin314-art",
+    "url": "https://github.com/wukexin314-art"
+  },
+  "repository": "https://github.com/wukexin314-art/HonestForecast",
+  "license": "MIT"
+}
