@@ -6,7 +6,7 @@ Last searched: 2026-11-09.
 
 HonestForecast does **not** claim that forecast scoring, leakage checks, point-in-time data, rolling evaluation, or epidemic forecasting are individually new. Mature projects already cover each of those components.
 
-The project's novelty hypothesis is narrower and testable:
+The project's primary novelty hypothesis remains narrower and testable:
 
 > An executable evidence chain for deciding whether a feature family deserves to enter a small-sample probabilistic forecasting system when predictors are delayed, revised, or operationally fragile.
 
@@ -15,6 +15,8 @@ The chain is:
 `feature mechanism and manifest -> origin-available vintage -> fold-local transform -> development-only screening -> common-grid probabilistic ablation -> robustness gates -> append-only promotion decision -> evidence card`
 
 The intended contribution is the integration and enforcement of that chain, plus defect-injection benchmarks that measure false promotion—not a new forecasting model.
+
+Version 0.5 also applies the same common-grid, robustness, and append-only decision layer to model, preprocessing, recalibration, ensemble, and pipeline changes. That broader interface is a practical reuse of the evidence gate, not a claim that generic model comparison is novel.
 
 ## Nearest public projects and methods
 
@@ -38,8 +40,8 @@ The current implementation links capabilities that the nearest projects generall
 
 1. A feature output must resolve to a source, version, availability rule, transform, and training-fit window.
 2. Screening rejects rows after a declared development cutoff and reports time-block sign stability, circular-shift null evidence, and BH-FDR.
-3. A feature-family comparison fails unless baseline and candidate share the exact origin/target/horizon grid.
-4. Promotion considers paired WIS, MAE, origin-level improvement, bootstrap uncertainty, coverage degradation, horizon loss, and drop-best-origin sensitivity.
+3. A candidate comparison fails unless baseline and candidate share the exact origin/target/horizon/unit grid.
+4. Promotion considers paired WIS, MAE, origin-level improvement, bootstrap uncertainty, coverage degradation, horizon loss, registered-stratum loss, and drop-best-origin sensitivity.
 5. Rejected families remain in an append-only log, reducing repeated unreported searches.
 6. Synthetic injected defects measure detection and false-promotion behavior.
 7. The India dengue case reconstructs Git-preserved feature vintages and quantifies repeated historical rewrites by source family.

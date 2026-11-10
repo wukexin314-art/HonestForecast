@@ -1,6 +1,6 @@
 ---
 name: honest-forecast
-description: Audit whether a feature family deserves admission to a time-series forecast when predictors may be delayed, revised, or unavailable at the forecast origin. Use for leakage-safe feature comparisons, forecast-vintage checks, probabilistic ablation, promotion decisions, and evidence cards; do not use merely to fit or tune an ordinary forecasting model.
+description: Audit whether a registered feature, data source, model, preprocessing, recalibration, ensemble, or pipeline change deserves admission to a time-series forecast. Use for point-in-time validity, paired probabilistic comparison, subgroup robustness, promotion decisions, and evidence cards; do not use merely to fit or tune an ordinary forecasting model.
 ---
 
 # Honest Forecast
@@ -9,9 +9,9 @@ Use the HonestForecast Python package as the calculation and validation layer. T
 
 ## Workflow
 
-1. Identify the forecast origin, target date, horizon, outcome-maturity rule, baseline, candidate feature family, and whether the result is development or frozen confirmation evidence. Do not infer a prospective design from historical files.
-2. Inspect or create the forecast contract, feature manifest, baseline predictions, and candidate predictions. Read [references/assessment-schema.md](references/assessment-schema.md) when preparing or repairing these inputs.
-3. Ask for origin-level availability evidence when the user wants a leakage-safe or promotion claim. Never invent `available_at`, `vintage_at`, retrieval dates, or source versions. Without this evidence, continue with scoring only and keep the limitation explicit.
+1. Identify the forecast origin, target date, horizon, outcome-maturity rule, baseline, candidate ID and kind, and whether the result is development or frozen confirmation evidence. Do not infer a prospective design from historical files.
+2. Inspect or create the forecast contract and paired predictions. For `feature` and `data_source` candidates, also require a feature manifest; other kinds must not receive invented feature provenance. Read [references/assessment-schema.md](references/assessment-schema.md) when preparing or repairing inputs.
+3. Ask for origin-level availability evidence when a feature or data-source candidate needs a leakage-safe promotion claim. Never invent `available_at`, `vintage_at`, retrieval dates, or source versions. Without this evidence, continue with scoring only and keep the limitation explicit.
 4. Run `honestforecast assess` on the supplied artifacts. Use the local package source or installed command already available in the environment. Installing software or retrieving data requires the same authorization it would outside this skill.
 5. If validation fails, report the invalid or incomparable evidence and correct only genuine data-format errors within scope. Do not intersect unequal grids silently, repair crossing quantiles by sorting them, replace missing vintages with current values, or change the registered horizon.
 6. Review `audit_receipt.json`, `origin_differences.csv`, `robustness.json`, and `evidence_card.md`. Read [references/promotion-gates.md](references/promotion-gates.md) before interpreting a promotion or advising a decision.
@@ -19,14 +19,14 @@ Use the HonestForecast Python package as the calculation and validation layer. T
 
 ## Required boundaries
 
-- Compare baseline and candidate on identical `(origin, target_date, horizon)` keys and identical actual values.
+- Compare baseline and candidate on identical `(origin, target_date, horizon, unit)` keys and identical actual values.
 - Treat candidate-minus-baseline WIS and MAE below zero as improvement.
-- Keep feature selection inside development data. Outcomes already inspected cannot become confirmation evidence later.
-- A `promoted` label requires frozen confirmation, explicit audit-gate attestation, origin-level availability evidence, and no registered robustness warning.
-- Describe a rejection as applying to the tested representation, not to every possible use of the source or feature family.
+- Keep candidate selection and tuning inside development data. Outcomes already inspected cannot become confirmation evidence later.
+- A `promoted` label requires frozen confirmation, explicit audit-gate attestation, and no registered horizon or stratum warning. Feature and data-source candidates additionally require origin-level availability evidence.
+- Describe a rejection as applying to the tested candidate representation, not every possible use of its source, feature, or model family.
 - Keep patient-level, identifiable, restricted, credential-bearing, or unclear-license artifacts out of public outputs. Aggregate predictions are not automatically public-safe; inspect their disclosure risk.
 - Treat the evidence card as conditional on the supplied provenance. It is not a causal, clinical, or deployment-safety claim.
 
 ## Deliverable
 
-Return the decision state, paired WIS and MAE differences, origin-bootstrap interval, proportion of improved origins, coverage change, horizon or event warnings, failed or missing audit checks, and the paths to generated evidence. Lead with invalidity or missing provenance before discussing favorable metrics.
+Return the candidate ID and kind, decision state, paired WIS and MAE differences, origin-bootstrap interval, proportion of improved origins, coverage change, horizon or registered-stratum warnings, failed or missing audit checks, and the paths to generated evidence. Lead with invalidity or missing provenance before discussing favorable metrics.

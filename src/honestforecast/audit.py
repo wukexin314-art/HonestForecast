@@ -10,7 +10,7 @@ class AuditError(ValueError):
     """Raised when evidence is invalid or not directly comparable."""
 
 
-CaseKey = Tuple[str, str, int]
+CaseKey = Tuple[str, str, int, str]
 
 
 def _parse_date(value: object, field: str) -> date:
@@ -31,13 +31,16 @@ def case_key(row: Mapping[str, object]) -> CaseKey:
     _parse_date(target_date, "target_date")
     if horizon <= 0:
         raise AuditError("horizon must be positive")
-    return origin, target_date, horizon
+    unit = str(row.get("unit", "__single__")).strip()
+    if not unit:
+        raise AuditError("unit must be non-empty when provided")
+    return origin, target_date, horizon, unit
 
 
 def case_keys(rows: Iterable[Mapping[str, object]]) -> Set[CaseKey]:
     keys = [case_key(row) for row in rows]
     if len(keys) != len(set(keys)):
-        raise AuditError("duplicate origin/target_date/horizon keys")
+        raise AuditError("duplicate origin/target_date/horizon/unit keys")
     if not keys:
         raise AuditError("no prediction rows")
     return set(keys)

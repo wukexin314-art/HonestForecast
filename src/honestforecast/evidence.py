@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Mapping, Sequence
 
 from .comparison import FamilyDecision
-from .contracts import FeatureSpec, ForecastContract
+from .contracts import ForecastContract
 
 
 def render_evidence_card(
@@ -53,7 +53,11 @@ This card verifies core mechanics on synthetic evidence. It does not establish p
 def render_assessment_evidence_card(
     *,
     contract: ForecastContract,
-    family_specs: Sequence[FeatureSpec],
+    candidate_id: str,
+    candidate_kind: str,
+    registered_items: Sequence[str],
+    registered_strata: Sequence[str],
+    n_units: int,
     baseline_metrics: Mapping[str, float],
     candidate_metrics: Mapping[str, float],
     decision: FamilyDecision,
@@ -72,21 +76,23 @@ def render_assessment_evidence_card(
     hash_rows = "\n".join(
         f"- {name}: `{digest}`" for name, digest in sorted(input_hashes.items())
     )
-    features = ", ".join(
-        f"`{spec.feature_id}@{spec.version}`" for spec in family_specs
+    items = (
+        ", ".join(f"`{item}`" for item in registered_items)
+        or "None supplied by this schema"
     )
     interpretation = {
         "promoted": "The candidate passed the supplied confirmation and audit claims plus the registered robustness gate.",
         "challenger": "The candidate is promising, but the evidence is not sufficient for promotion.",
         "rejected": "The candidate did not improve WIS under this registered representation.",
     }[decision.state]
-    return f"""# Forecast feature evidence card
+    return f"""# Forecast change evidence card
 
 ## Identity
 
 - Study: `{contract.study_id}`
-- Candidate feature family: `{decision.family}`
-- Registered features: {features}
+- Candidate: `{candidate_id}`
+- Candidate kind: `{candidate_kind}`
+- Registered evidence items: {items}
 - Decision state: `{decision.state}`
 - Evidence level: `E3 report regeneration`
 
@@ -94,7 +100,9 @@ def render_assessment_evidence_card(
 
 - Common scored cases: {decision.n_cases}
 - Forecast origins: {decision.n_origins}
+- Forecast units: {n_units}
 - Horizons: {", ".join(str(value) for value in contract.horizons)}
+- Registered strata: {", ".join(registered_strata) or "None"}
 
 ## Metrics regenerated from prediction rows
 
@@ -129,5 +137,5 @@ Differences use candidate minus baseline, so negative errors favor the candidate
 
 {interpretation}
 
-The tool validates the supplied artifacts, not the truth of upstream source timestamps or declarations. A `promoted` result therefore remains conditional on accurate input provenance and a genuinely frozen confirmation design. It is not a causal, clinical, or operational-safety claim.
+The tool validates the supplied artifacts, not the truth of upstream provenance or study declarations. A `promoted` result therefore remains conditional on accurate inputs and a genuinely frozen confirmation design. It is not a causal, clinical, or operational-safety claim.
 """

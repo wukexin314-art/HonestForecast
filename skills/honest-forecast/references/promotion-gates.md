@@ -20,6 +20,7 @@ HonestForecast reports candidate minus baseline differences. Negative WIS or MAE
 - `fewer_than_60_percent_origins_improved`;
 - `uncertainty_includes_no_improvement`: the origin-bootstrap upper bound is at least zero;
 - `material_horizon_loss`: pooled improvement hides a non-improving registered horizon.
+- `material_stratum_loss:<field>=<value>`: pooled improvement hides a non-improving registered subgroup.
 
 Any registered warning prevents promotion. Do not discard a warning because a different metric or unregistered subgroup looks favorable.
 

@@ -1,6 +1,6 @@
 # Contributing
 
-HonestForecast accepts focused changes that strengthen point-in-time validity, feature evidence, probabilistic comparison, or reproducibility.
+HonestForecast accepts focused changes that strengthen point-in-time validity, forecast-change evidence, probabilistic comparison, or reproducibility.
 
 ## Before opening a change
 
@@ -8,7 +8,7 @@ HonestForecast accepts focused changes that strengthen point-in-time validity, f
 2. Add a failing test for new audit logic or a known-answer scenario for a new failure mode.
 3. Keep model-specific code outside the core unless it enforces a general evidence rule.
 4. Do not include private data, credentials, patient-level records, or artifacts with unclear redistribution rights.
-5. Preserve negative feature decisions and comparable evaluation grids.
+5. Preserve negative candidate decisions and comparable evaluation grids.
 
 ## Local checks
 

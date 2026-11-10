@@ -188,6 +188,78 @@ class AssessmentTests(unittest.TestCase):
                     bootstrap_repetitions=50,
                 )
 
+    def test_model_candidate_does_not_require_feature_manifest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            inputs = self._inputs(root)
+            model_rows = _prediction_rows(1.0)
+            for row in model_rows:
+                row["candidate_id"] = "xgboost-v2"
+                row["candidate_kind"] = "model"
+            _write_csv(inputs[3], model_rows)
+            output = root / "model"
+            receipt = assess(
+                contract_path=inputs[0],
+                baseline_path=inputs[2],
+                candidate_path=inputs[3],
+                output_dir=output,
+                confirmation_frozen=True,
+                all_audit_gates_passed=True,
+                bootstrap_repetitions=50,
+            )
+            self.assertEqual(receipt["candidate"], {"id": "xgboost-v2", "kind": "model"})
+            self.assertEqual(receipt["checks"]["feature_manifest"], "not_required")
+            self.assertEqual(receipt["decision"]["state"], "promoted")
+            decision = json.loads(
+                (output / "decision_log.jsonl").read_text(encoding="utf-8")
+            )
+            self.assertEqual(decision["candidate_kind"], "model")
+
+    def test_registered_stratum_loss_blocks_multi_unit_promotion(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            inputs = self._inputs(root)
+            baseline_rows = []
+            candidate_rows = []
+            for base, strong, weak in zip(
+                _prediction_rows(5.0),
+                _prediction_rows(1.0),
+                _prediction_rows(6.0),
+            ):
+                for unit, candidate in (("north", strong), ("south", weak)):
+                    baseline_row = dict(base, unit=unit, region=unit)
+                    candidate_row = dict(
+                        candidate,
+                        unit=unit,
+                        region=unit,
+                        candidate_id="xgboost-v2",
+                        candidate_kind="model",
+                    )
+                    baseline_rows.append(baseline_row)
+                    candidate_rows.append(candidate_row)
+            _write_csv(inputs[2], baseline_rows)
+            _write_csv(inputs[3], candidate_rows)
+            output = root / "strata"
+            receipt = assess(
+                contract_path=inputs[0],
+                baseline_path=inputs[2],
+                candidate_path=inputs[3],
+                output_dir=output,
+                strata=("region",),
+                confirmation_frozen=True,
+                all_audit_gates_passed=True,
+                bootstrap_repetitions=50,
+            )
+            self.assertEqual(receipt["evaluation_grid"]["n_units"], 2)
+            self.assertEqual(receipt["decision"]["state"], "challenger")
+            self.assertIn(
+                "material_stratum_loss:region=south",
+                receipt["decision"]["warnings"],
+            )
+            card = (output / "evidence_card.md").read_text(encoding="utf-8")
+            self.assertIn("Forecast units: 2", card)
+            self.assertIn("Registered strata: region", card)
+
 
 if __name__ == "__main__":
     unittest.main()

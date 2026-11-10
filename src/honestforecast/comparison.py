@@ -1,4 +1,4 @@
-"""Paired feature-family ablation and append-only promotion decisions."""
+"""Paired forecast-change comparison and append-only promotion decisions."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import random
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from statistics import mean
-from typing import Dict, Iterable, List, Mapping, Sequence, Tuple
+from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 from .audit import assert_common_grid, case_key
 from .metrics import quantile_column, validate_prediction_rows, weighted_interval_score
@@ -28,8 +28,14 @@ class FamilyDecision:
     coverage_difference: float
     warnings: Tuple[str, ...]
 
+    @property
+    def candidate_id(self) -> str:
+        return self.family
+
     def to_dict(self) -> Dict[str, object]:
-        return asdict(self)
+        payload = asdict(self)
+        payload["candidate_id"] = self.family
+        return payload
 
 
 def _coverage(rows: Sequence[Mapping[str, object]], lower: float, upper: float) -> float:
@@ -141,8 +147,31 @@ def compare_feature_family(
     )
 
 
-def append_decision(path: Path, decision: FamilyDecision) -> None:
-    """Append a decision without rewriting previous feature-family outcomes."""
+CandidateDecision = FamilyDecision
+
+
+def compare_candidate(
+    candidate_id: str,
+    baseline_rows: Iterable[Mapping[str, object]],
+    candidate_rows: Iterable[Mapping[str, object]],
+    **kwargs,
+) -> CandidateDecision:
+    """Compare a generic forecast change; feature-family API remains compatible."""
+    return compare_feature_family(
+        candidate_id, baseline_rows, candidate_rows, **kwargs
+    )
+
+
+def append_decision(
+    path: Path,
+    decision: FamilyDecision,
+    *,
+    metadata: Optional[Mapping[str, object]] = None,
+) -> None:
+    """Append a decision without rewriting previous candidate outcomes."""
+    payload = decision.to_dict()
+    if metadata:
+        payload.update(metadata)
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     with Path(path).open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(decision.to_dict(), sort_keys=True) + "\n")
+        handle.write(json.dumps(payload, sort_keys=True) + "\n")

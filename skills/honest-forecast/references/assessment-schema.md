@@ -14,7 +14,11 @@ honestforecast assess \
   --output results
 ```
 
-`--availability` is optional for exploratory scoring but required with `--all-audit-gates-passed`. A promotion additionally requires `--confirmation-frozen`. `--family NAME` may replace the candidate `feature_family` column.
+`--availability` is optional for exploratory feature scoring but required when a feature or data-source candidate declares `--all-audit-gates-passed`. A promotion additionally requires `--confirmation-frozen`.
+
+## Candidate identity
+
+Supported `candidate_kind` values are `feature`, `data_source`, `model`, `preprocessing`, `recalibration`, `ensemble`, and `pipeline`. Supply one stable `candidate_id` and kind in every candidate row or with `--candidate-id` and `--candidate-kind`. Legacy `feature_family` and `--family` map to a feature candidate.
 
 ## Forecast contract
 
@@ -28,6 +32,8 @@ Required JSON fields:
 - `development_only_selection`: boolean.
 
 ## Feature manifest
+
+A manifest is required only for `feature` and `data_source` candidates. Do not invent one for model or pipeline changes.
 
 Required CSV columns:
 
@@ -44,25 +50,28 @@ Both prediction CSVs require one row per case and these columns:
 
 - `origin`, `target_date`: ISO dates;
 - `horizon`: positive integer registered in the contract;
+- optional `unit`: non-empty series ID for a location, site, product, or population;
 - `actual`, `point`: finite numbers;
 - `q0.025`, `q0.1`, `q0.25`, `q0.5`, `q0.75`, `q0.9`, `q0.975`: finite, non-crossing quantiles.
 
-The candidate also declares one `feature_family` value on every row unless `--family` is supplied. Baseline and candidate grids and actual values must match exactly.
+Baseline and candidate `(origin, target_date, horizon, unit)` grids and actual values must match exactly.
+
+Register subgroup columns with repeated `--stratum FIELD`. The field must be populated and identical in both prediction files for every case. A non-improving registered stratum blocks promotion when the pooled result improves.
 
 ## Availability evidence
 
-The availability CSV contains one row for every candidate-family `feature_id` at every scored `origin`:
+The availability CSV contains one row for every candidate-family `feature_id` at every scored `origin` and `unit`:
 
-- `feature_id`, `origin`, `available_at`;
+- `feature_id`, `origin`, optional `unit`, `available_at`;
 - optional `vintage_at`, populated on every row if used.
 
-Pairs must be unique and complete. `available_at` and `vintage_at` cannot be later than the forecast origin.
+Keys must be unique and complete. `unit` is required when prediction files contain multiple units. `available_at` and `vintage_at` cannot be later than the forecast origin.
 
 ## Outputs
 
 - `audit_receipt.json`: hashes, checks, claims, grid, and final decision;
 - `metrics.csv`: regenerated baseline and candidate metrics;
 - `origin_differences.csv`: paired origin-level differences;
-- `robustness.json`: bootstrap, horizon, concentration, and coverage evidence;
-- `decision_log.jsonl`: append-only decision history;
+- `robustness.json`: bootstrap, horizon, registered-stratum, concentration, and coverage evidence;
+- `decision_log.jsonl`: append-only decision history with candidate ID and kind;
 - `evidence_card.md`: human-readable summary.

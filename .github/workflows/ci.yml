@@ -32,6 +32,13 @@ jobs:
             --candidate examples/assessment/candidate_predictions.csv \
             --availability examples/assessment/availability.csv \
             --output /tmp/honestforecast-assessment
+          honestforecast assess \
+            --contract examples/assessment/forecast_contract.json \
+            --baseline examples/assessment/baseline_predictions.csv \
+            --candidate examples/assessment/model_candidate_predictions.csv \
+            --candidate-id xgboost-v2 \
+            --candidate-kind model \
+            --output /tmp/honestforecast-model-assessment
       - name: Public safety and package metadata
         run: |
           python scripts/public_safety_scan.py

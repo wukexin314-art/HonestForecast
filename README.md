@@ -1,16 +1,16 @@
 # HonestForecast
 
-**Evidence-first feature engineering for forecasts built from delayed, revised, or operationally fragile data.**
+**Evidence gates for forecast changes under delayed, revised, or drifting data.**
 
 HonestForecast is a small Python toolkit for answering a question that ordinary backtests often skip:
 
-> Did a feature improve the forecast using only the information that was actually available at each forecast origin?
+> Did a registered feature, model, data source, or pipeline change improve the forecast on evidence that was genuinely available at each origin?
 
-It connects point-in-time feature provenance, fold-local preprocessing, development-only screening, common-grid probabilistic ablation, robustness gates, and append-only decisions. The package is intentionally not a model zoo.
+It connects point-in-time provenance, fold-local preprocessing, development-only screening, common-grid probabilistic comparison, subgroup robustness gates, and append-only decisions. The package is intentionally not a model zoo.
 
 ## Why this exists
 
-A feature can look useful retrospectively and still be invalid or unsafe to deploy because:
+A forecast change can look useful retrospectively and still be invalid or unsafe to deploy because:
 
 - the value was published after the forecast origin;
 - a later revision was used as if it were the original value;
@@ -29,7 +29,9 @@ HonestForecast makes those failure modes explicit and testable.
 - fold-local imputation and clipping with lineage;
 - development-cutoff enforcement, circular-shift nulls, stability checks, and BH-FDR;
 - MAE, WIS, interval coverage, and exact common-grid validation;
-- paired feature-family ablation, origin bootstrap, horizon and event sensitivity;
+- paired candidate comparison, origin bootstrap, horizon and registered-stratum sensitivity;
+- optional multi-series `unit` keys for locations, sites, products, or populations;
+- feature, data-source, model, preprocessing, recalibration, ensemble, and pipeline candidates;
 - append-only `challenger`, `rejected`, and `promoted` decisions;
 - deterministic synthetic leakage and false-promotion scenarios;
 - Git-history data-vintage auditing;
@@ -67,6 +69,20 @@ honestforecast assess \
 
 The command requires an exact evaluation grid, validates forecast quantiles and origin-level feature availability, runs paired robustness checks, appends the decision, and emits an evidence card. See the [portable assessment guide](docs/assessment.md) for schemas and interpretation.
 
+The same command can assess a model replacement without a feature manifest:
+
+```bash
+honestforecast assess \
+  --contract examples/assessment/forecast_contract.json \
+  --baseline examples/assessment/baseline_predictions.csv \
+  --candidate examples/assessment/model_candidate_predictions.csv \
+  --candidate-id xgboost-v2 \
+  --candidate-kind model \
+  --output build/model-assessment
+```
+
+For multi-series predictions, add a `unit` column to both files. Register subgroup columns such as `region`, `site`, or `population` with repeated `--stratum` options; a material loss in any registered stratum blocks promotion.
+
 ## Codex Skill
 
 The repository includes a reusable Codex Skill at [`skills/honest-forecast`](skills/honest-forecast). The Python package remains the deterministic calculation layer; the Skill guides Codex through contracts, availability evidence, fail-closed validation, promotion interpretation, and evidence reporting without duplicating the statistics in prompts.
@@ -74,10 +90,10 @@ The repository includes a reusable Codex Skill at [`skills/honest-forecast`](ski
 ## Evidence chain
 
 ```text
-feature mechanism + manifest
-    -> origin-available vintage
-    -> fold-local transformation
-    -> development-only screening
+registered forecast change + applicable provenance
+    -> origin-valid evidence
+    -> fold-local preprocessing when used
+    -> development-only selection and tuning
     -> identical-grid probabilistic ablation
     -> robustness gates
     -> append-only decision
@@ -106,14 +122,14 @@ The latter two contributed design lessons only. No restricted data, client code,
 
 ## Novelty boundary
 
-WIS, rolling evaluation, leakage checks, point-in-time joins, and epidemic forecast scoring already have strong implementations. HonestForecast's contribution is the enforced end-to-end evidence chain and defect-injection benchmark for **feature-family admission**, not a new metric or forecasting algorithm.
+WIS, rolling evaluation, leakage checks, point-in-time joins, and epidemic forecast scoring already have strong implementations. HonestForecast's contribution is the enforced end-to-end evidence chain and defect-injection benchmark for **forecast-change admission**, with its strongest provenance controls applying to feature and data-source changes. It is not a new metric or forecasting algorithm.
 
 See the [landscape review](docs/landscape.md) for the nearest projects, overlaps, and claims this project deliberately does not make.
 
 ## Repository map
 
 ```text
-src/honestforecast/               core package and three CLIs
+src/honestforecast/               core package and command-line entry points
 tests/                            unit and committed-artifact checks
 examples/                         contracts, manifests, and portable assessment inputs
 case_studies/india_dengue/        public reports and machine-readable evidence
@@ -124,7 +140,7 @@ skills/honest-forecast/           reusable Codex workflow and references
 
 ## Status
 
-Version 0.4.0 is research alpha software. The India pilot has only seven scored origins and uses repository-state rather than source-native vintages. A longer prospective window is required before an effectiveness claim.
+Version 0.5.0 is research alpha software. Generic model and pipeline decisions rely on explicit researcher attestations for gates the supplied prediction files cannot independently verify. The India pilot has only seven scored origins and uses repository-state rather than source-native vintages. A longer prospective window is required before an effectiveness claim.
 
 ## License and citation
 

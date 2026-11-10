@@ -110,7 +110,7 @@ The denylist is a safety net, not a substitute for manual review.
 Each primary result receives an evidence card containing:
 
 - forecast contract and data vintage;
-- feature family and lineage;
+- candidate ID and kind, plus feature family and lineage when applicable;
 - model identity and implementation provenance;
 - evaluation grid and scored-case count;
 - primary and secondary metrics;

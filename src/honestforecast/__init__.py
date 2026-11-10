@@ -7,7 +7,13 @@ from .audit import (
     assert_no_future_availability,
     assert_no_future_vintage,
 )
-from .comparison import FamilyDecision, append_decision, compare_feature_family
+from .comparison import (
+    CandidateDecision,
+    FamilyDecision,
+    append_decision,
+    compare_candidate,
+    compare_feature_family,
+)
 from .contracts import ContractError, FeatureSpec, ForecastContract, load_feature_manifest
 from .features import FeatureError, FeatureLineage, as_of_join, fit_fold_transform
 from .metrics import MetricError, summarize_predictions, validate_prediction_rows
@@ -17,6 +23,7 @@ from .vintages import GitSnapshot, SnapshotAudit, VintageError, audit_snapshots
 __all__ = [
     "AssessmentError",
     "AuditError",
+    "CandidateDecision",
     "ContractError",
     "FeatureSpec",
     "FeatureError",
@@ -36,6 +43,7 @@ __all__ = [
     "assert_no_future_vintage",
     "audit_snapshots",
     "compare_feature_family",
+    "compare_candidate",
     "fit_fold_transform",
     "load_feature_manifest",
     "summarize_predictions",
@@ -43,4 +51,4 @@ __all__ = [
     "screen_candidates",
 ]
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"

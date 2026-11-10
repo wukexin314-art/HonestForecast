@@ -1,5 +1,5 @@
 {
-  "study_id": "portable-feature-admission-demo",
+  "study_id": "portable-forecast-change-demo",
   "target_name": "monthly activity",
   "frequency": "monthly",
   "horizons": [1],
