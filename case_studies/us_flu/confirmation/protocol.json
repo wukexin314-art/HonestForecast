@@ -1,0 +1,15 @@
+{
+  "study_id": "us-ilinet-wiki-sealed-retrospective",
+  "candidate": {
+    "id": "wikipedia_influenza",
+    "kind": "feature"
+  },
+  "confirmation_window": {
+    "start": "2024-10-01",
+    "end": "2026-05-31"
+  },
+  "registered_strata": [],
+  "bootstrap_repetitions": 1000,
+  "seed": 20261109,
+  "audit_checks": []
+}

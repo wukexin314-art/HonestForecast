@@ -1,0 +1,78 @@
+{
+  "exploratory_decision": {
+    "bootstrap_95_lower": -0.007247862760593727,
+    "bootstrap_95_upper": 0.014502797981632952,
+    "candidate_id": "wikipedia_influenza",
+    "coverage_difference": -0.0006587615283266679,
+    "drop_best_origin_wis_difference": 0.004597877693789654,
+    "family": "wikipedia_influenza",
+    "improved_origin_proportion": 0.6231884057971014,
+    "mean_mae_difference": -0.00011485544432610848,
+    "mean_wis_difference": 0.003191140277240623,
+    "n_cases": 1518,
+    "n_origins": 69,
+    "state": "rejected",
+    "warnings": [
+      "event_concentration",
+      "uncertainty_includes_no_improvement"
+    ]
+  },
+  "metrics": {
+    "ar": {
+      "coverage_50": 0.5968379446640316,
+      "coverage_80": 0.7878787878787878,
+      "coverage_95": 0.8656126482213439,
+      "mae": 0.43741766469986804,
+      "n_cases": 1518,
+      "width_50": 0.6484832340458202,
+      "width_80": 1.2321383736064881,
+      "width_95": 1.880550716977779,
+      "wis": 0.28446472486805197
+    },
+    "ar_latest_revised": {
+      "coverage_50": 0.6561264822134387,
+      "coverage_80": 0.8089591567852438,
+      "coverage_95": 0.878129117259552,
+      "mae": 0.3981458836856071,
+      "n_cases": 1518,
+      "width_50": 0.6476657526731394,
+      "width_80": 1.2305851334977125,
+      "width_95": 1.8781408341965116,
+      "wis": 0.26685608430563207
+    },
+    "ar_wiki": {
+      "coverage_50": 0.6021080368906456,
+      "coverage_80": 0.7872200263504612,
+      "coverage_95": 0.8656126482213439,
+      "mae": 0.43730280925554194,
+      "n_cases": 1518,
+      "width_50": 0.6416075052512081,
+      "width_80": 1.2190742744138263,
+      "width_95": 1.862263764993174,
+      "wis": 0.2876558651452926
+    },
+    "ar_wiki_latest_revised": {
+      "coverage_50": 0.6640316205533597,
+      "coverage_80": 0.8129117259552042,
+      "coverage_95": 0.8735177865612648,
+      "mae": 0.3984647492793531,
+      "n_cases": 1518,
+      "width_50": 0.640938434720731,
+      "width_80": 1.217803019534796,
+      "width_95": 1.860222214911159,
+      "wis": 0.26996415608063973
+    }
+  },
+  "n_cases": 1518,
+  "n_origins": 69,
+  "seasons": [
+    "2022/2023",
+    "2023/2024"
+  ],
+  "split": "development",
+  "study_id": "us-ilinet-wiki",
+  "vintage_optimism_wis": {
+    "ar": -0.017608640562419897,
+    "ar_wiki": -0.017691709064652894
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "code_sha256": {
+    "assessment.py": "2ccb918e00f37284a98eaa08fa59009d9c43e6743e377af84edb42abc92654fa",
+    "audit.py": "9b12f20bd3d2bfe3299ee51849e373e60f743f8fb375ccd3246ed8083b4093e1",
+    "comparison.py": "385476ab3dfbf24b92bd13f11640354aa98c05a63deeaab8ceca865e084dbcab",
+    "metrics.py": "1f17dca3e41bcfe5d8652bf0b0127469cf76ae7203f0ad8b7e6ffa3f18ab727f"
+  },
+  "input_sha256": {
+    "contract": "f5595bbae1dd6b40d5e832f3360bc604a8775c051987b9f79c27707d1fc07e74",
+    "protocol": "23ad5fd74869e85f953d62582fa35e47765981e876cb0abf7b2ba6869f7dbaeb"
+  },
+  "protocol": {
+    "audit_checks": [],
+    "bootstrap_repetitions": 1000,
+    "candidate": {
+      "id": "wikipedia_influenza",
+      "kind": "feature"
+    },
+    "confirmation_window": {
+      "end": "2026-05-31",
+      "start": "2024-10-01"
+    },
+    "registered_strata": [],
+    "seed": 20261109,
+    "study_id": "us-ilinet-wiki-sealed-retrospective"
+  },
+  "registered_at": "2026-11-10T05:00:50.828004Z",
+  "registration_sha256": "ada9343c4f0e6397fca74ced1f764368e6897ba18fcad45f43ce42b7b99554dc",
+  "schema_version": "1.1",
+  "timestamp_authority": "local_clock_untrusted"
+}

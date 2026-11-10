@@ -1,0 +1,2 @@
+feature_id,family,version,availability_class,minimum_reporting_lag,vintage_policy,state
+wiki_influenza_en,wikipedia_influenza,1,observed_with_lag,2 days,never_revised,candidate

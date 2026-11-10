@@ -36,6 +36,10 @@ class CaseStudyArtifactTests(unittest.TestCase):
                 self.assertEqual(lock["input_sha256"]["contract"], sha256_file(prospective / "forecast_contract.json"))
                 self.assertEqual(lock["input_sha256"]["protocol"], sha256_file(prospective / "protocol.json"))
                 self.assertIn(lock["registration_sha256"], (prospective / "README.md").read_text())
+        flu = ROOT / "case_studies" / "us_flu" / "confirmation"
+        lock = load_registration(flu / "protocol.lock.json")
+        self.assertEqual(lock["input_sha256"]["protocol"], sha256_file(flu / "protocol.json"))
+        self.assertIn(lock["registration_sha256"], (flu / "README.md").read_text())
         # Fails if a scoring or promotion rule is edited while the v2 confirmation is open.
         self.assertEqual(load_registration(CASE / "prospective_v2" / "protocol.lock.json")["code_sha256"], decision_code_hashes())
 
