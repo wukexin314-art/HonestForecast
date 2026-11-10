@@ -111,6 +111,7 @@ Each primary result receives an evidence card containing:
 
 - forecast contract and data vintage;
 - candidate ID and kind, plus feature family and lineage when applicable;
+- protocol-registration status and registration digest;
 - model identity and implementation provenance;
 - evaluation grid and scored-case count;
 - primary and secondary metrics;
@@ -120,6 +121,8 @@ Each primary result receives an evidence card containing:
 - limitations and prohibited claims.
 
 The synthetic CLI emits the reference `evidence_card.md` artifact.
+
+The protocol lock detects changes to the registered design and forecast contract. Its local `registered_at` value is not proof that registration preceded outcome access; use a public Git commit, release, or external registry to establish that chronology.
 
 ## 6. Stop rules
 

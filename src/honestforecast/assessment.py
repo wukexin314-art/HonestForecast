@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import csv
-import hashlib
 import json
 from dataclasses import asdict, replace
 from pathlib import Path
@@ -26,6 +25,15 @@ from .contracts import (
 )
 from .evidence import render_assessment_evidence_card
 from .metrics import summarize_predictions, validate_prediction_rows, weighted_interval_score
+from .registration import (
+    canonical_hash,
+    load_registration,
+    register_protocol,
+    sha256_file,
+    validate_audit_evidence,
+    validate_registration,
+    verify_assessment,
+)
 
 
 class AssessmentError(ValueError):
@@ -62,14 +70,6 @@ def _write_csv(path: Path, rows: Sequence[Mapping[str, object]]) -> None:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
-
-
-def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with Path(path).open("rb") as handle:
-        for block in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
 
 
 def _load_contract(path: Path) -> ForecastContract:
@@ -314,6 +314,8 @@ def assess(
     candidate_id: Optional[str] = None,
     candidate_kind: Optional[str] = None,
     strata: Sequence[str] = (),
+    registration_path: Optional[Path] = None,
+    audit_evidence_path: Optional[Path] = None,
     confirmation_frozen: bool = False,
     all_audit_gates_passed: bool = False,
     bootstrap_repetitions: int = 1000,
@@ -389,16 +391,56 @@ def assess(
             _audit_availability(availability_path, selected_specs, availability_cases)
         )
 
+    registered_strata = tuple(dict.fromkeys(value.strip() for value in strata))
+    registration = None
+    checks["protocol_registration"] = "not_provided"
+    if registration_path is not None:
+        registration = validate_registration(
+            registration_path,
+            contract_path=contract_path,
+            study_id=contract.study_id,
+            candidate_id=resolved_id,
+            candidate_kind=resolved_kind,
+            strata=registered_strata,
+            bootstrap_repetitions=bootstrap_repetitions,
+            seed=seed,
+            origins=origins,
+        )
+        checks["protocol_registration"] = "passed"
+
+    audit_artifacts: Dict[str, Path] = {}
+    checks["structured_audit_evidence"] = "not_required"
+    if audit_evidence_path is not None:
+        if registration is None:
+            raise AssessmentError("--audit-evidence requires --registration")
+        audit_artifacts = validate_audit_evidence(
+            audit_evidence_path,
+            registration=registration,
+            candidate_id=resolved_id,
+            candidate_kind=resolved_kind,
+        )
+        checks["structured_audit_evidence"] = "passed"
+    elif resolved_kind not in SOURCE_CANDIDATE_KINDS:
+        checks["structured_audit_evidence"] = "not_provided"
+        if registration is not None and all_audit_gates_passed:
+            raise AssessmentError(
+                "non-source candidates require --audit-evidence to pass all audit gates"
+            )
+
+    effective_confirmation = registration is not None
+    effective_audit_gates = all_audit_gates_passed and (
+        resolved_kind in SOURCE_CANDIDATE_KINDS or bool(audit_artifacts)
+    )
+
     decision = compare_candidate(
         resolved_id,
         baseline,
         candidate,
-        confirmation_frozen=confirmation_frozen,
-        all_audit_gates_passed=all_audit_gates_passed,
+        confirmation_frozen=effective_confirmation,
+        all_audit_gates_passed=effective_audit_gates,
         bootstrap_repetitions=bootstrap_repetitions,
         seed=seed,
     )
-    registered_strata = tuple(dict.fromkeys(value.strip() for value in strata))
     stratum_rows = _stratum_differences(baseline, candidate, registered_strata)
     stratum_warnings = tuple(
         f"material_stratum_loss:{row['stratum']}={row['value']}"
@@ -410,6 +452,17 @@ def assess(
             decision,
             state="challenger" if decision.state == "promoted" else decision.state,
             warnings=decision.warnings + stratum_warnings,
+        )
+    evidence_warnings = []
+    if decision.mean_wis_difference < 0 and registration is None:
+        evidence_warnings.append("registration_missing")
+    if decision.mean_wis_difference < 0 and not effective_audit_gates:
+        evidence_warnings.append("audit_gates_unconfirmed")
+    if evidence_warnings:
+        decision = replace(
+            decision,
+            state="challenger" if decision.state == "promoted" else decision.state,
+            warnings=decision.warnings + tuple(evidence_warnings),
         )
     baseline_metrics = summarize_predictions(baseline)
     candidate_metrics = summarize_predictions(candidate)
@@ -434,8 +487,14 @@ def assess(
         input_paths["manifest"] = Path(manifest_path)
     if availability_path is not None:
         input_paths["availability"] = Path(availability_path)
+    if registration_path is not None:
+        input_paths["registration"] = Path(registration_path)
+    if audit_evidence_path is not None:
+        input_paths["audit_evidence"] = Path(audit_evidence_path)
+    for check_id, path in audit_artifacts.items():
+        input_paths[f"audit_artifact:{check_id}"] = path
     receipt: Dict[str, object] = {
-        "schema_version": "2.0",
+        "schema_version": "3.0",
         "study_id": contract.study_id,
         "candidate": {"id": resolved_id, "kind": resolved_kind},
         "assessment_config": {
@@ -445,7 +504,9 @@ def assess(
         },
         "contract": asdict(contract),
         "feature_identities": registered_items,
-        "input_sha256": {name: _sha256(path) for name, path in input_paths.items()},
+        "input_sha256": {
+            name: sha256_file(path) for name, path in input_paths.items()
+        },
         "checks": checks,
         "evaluation_grid": {
             "n_cases": len(baseline),
@@ -454,11 +515,16 @@ def assess(
             "horizons": sorted(contract.horizons),
         },
         "claims": {
-            "confirmation_frozen": confirmation_frozen,
+            "confirmation_frozen": effective_confirmation,
+            "legacy_confirmation_flag": confirmation_frozen,
             "all_audit_gates_passed": all_audit_gates_passed,
             "availability_evidence_supplied": availability_path is not None,
+            "structured_audit_evidence_supplied": audit_evidence_path is not None,
             "registered_strata": list(registered_strata),
         },
+        "registration_sha256": (
+            registration["registration_sha256"] if registration is not None else None
+        ),
         "decision": decision.to_dict(),
     }
     if resolved_kind == "feature":
@@ -470,9 +536,6 @@ def assess(
     _write_csv(output_dir / "origin_differences.csv", origin_rows)
     (output_dir / "robustness.json").write_text(
         json.dumps(robustness, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
-    (output_dir / "audit_receipt.json").write_text(
-        json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     append_decision(
         output_dir / "decision_log.jsonl",
@@ -492,8 +555,23 @@ def assess(
             decision=decision,
             checks=checks,
             input_hashes=receipt["input_sha256"],
+            registration_sha256=receipt["registration_sha256"],
         ),
         encoding="utf-8",
+    )
+    receipt["output_sha256"] = {
+        name: sha256_file(output_dir / name)
+        for name in (
+            "metrics.csv",
+            "origin_differences.csv",
+            "robustness.json",
+            "decision_log.jsonl",
+            "evidence_card.md",
+        )
+    }
+    receipt["receipt_sha256"] = canonical_hash(receipt)
+    (output_dir / "audit_receipt.json").write_text(
+        json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     return receipt
 
@@ -512,6 +590,8 @@ def main() -> None:
     assess_parser.add_argument("--baseline", type=Path, required=True)
     assess_parser.add_argument("--candidate", type=Path, required=True)
     assess_parser.add_argument("--availability", type=Path)
+    assess_parser.add_argument("--registration", type=Path)
+    assess_parser.add_argument("--audit-evidence", type=Path)
     assess_parser.add_argument("--candidate-id")
     assess_parser.add_argument(
         "--candidate-kind", choices=sorted(SUPPORTED_CANDIDATE_KINDS)
@@ -528,24 +608,82 @@ def main() -> None:
     assess_parser.add_argument("--all-audit-gates-passed", action="store_true")
     assess_parser.add_argument("--bootstrap-repetitions", type=int, default=1000)
     assess_parser.add_argument("--seed", type=int, default=20261109)
+    register_parser = subparsers.add_parser(
+        "register", help="freeze and hash a forecast-change protocol"
+    )
+    register_parser.add_argument("--protocol", type=Path, required=True)
+    register_parser.add_argument("--contract", type=Path, required=True)
+    register_parser.add_argument("--output", type=Path, required=True)
+    verify_parser = subparsers.add_parser(
+        "verify", help="verify an assessment bundle and optional source inputs"
+    )
+    verify_parser.add_argument("--bundle", type=Path, required=True)
+    for option in (
+        "contract",
+        "manifest",
+        "baseline",
+        "candidate",
+        "availability",
+        "registration",
+        "audit-evidence",
+    ):
+        verify_parser.add_argument(f"--{option}", type=Path)
     args = parser.parse_args()
     try:
-        receipt = assess(
-            contract_path=args.contract,
-            manifest_path=args.manifest,
-            baseline_path=args.baseline,
-            candidate_path=args.candidate,
-            availability_path=args.availability,
-            family=args.family,
-            candidate_id=args.candidate_id,
-            candidate_kind=args.candidate_kind,
-            strata=args.stratum,
-            output_dir=args.output,
-            confirmation_frozen=args.confirmation_frozen,
-            all_audit_gates_passed=args.all_audit_gates_passed,
-            bootstrap_repetitions=args.bootstrap_repetitions,
-            seed=args.seed,
-        )
+        if args.command == "register":
+            receipt = register_protocol(args.protocol, args.contract, args.output)
+        elif args.command == "verify":
+            if args.audit_evidence is not None and args.registration is None:
+                raise AssessmentError("--audit-evidence requires --registration")
+            supplied = {
+                name: path
+                for name, path in {
+                    "contract": args.contract,
+                    "manifest": args.manifest,
+                    "baseline": args.baseline,
+                    "candidate": args.candidate,
+                    "availability": args.availability,
+                    "registration": args.registration,
+                    "audit_evidence": args.audit_evidence,
+                }.items()
+                if path is not None
+            }
+            if args.registration is not None:
+                registration = load_registration(args.registration)
+                if args.audit_evidence is not None:
+                    candidate = registration["protocol"]["candidate"]
+                    artifacts = validate_audit_evidence(
+                        args.audit_evidence,
+                        registration=registration,
+                        candidate_id=candidate["id"],
+                        candidate_kind=candidate["kind"],
+                    )
+                    supplied.update(
+                        {
+                            f"audit_artifact:{check_id}": path
+                            for check_id, path in artifacts.items()
+                        }
+                    )
+            receipt = verify_assessment(args.bundle, input_paths=supplied)
+        else:
+            receipt = assess(
+                contract_path=args.contract,
+                manifest_path=args.manifest,
+                baseline_path=args.baseline,
+                candidate_path=args.candidate,
+                availability_path=args.availability,
+                registration_path=args.registration,
+                audit_evidence_path=args.audit_evidence,
+                family=args.family,
+                candidate_id=args.candidate_id,
+                candidate_kind=args.candidate_kind,
+                strata=args.stratum,
+                output_dir=args.output,
+                confirmation_frozen=args.confirmation_frozen,
+                all_audit_gates_passed=args.all_audit_gates_passed,
+                bootstrap_repetitions=args.bootstrap_repetitions,
+                seed=args.seed,
+            )
     except (OSError, ValueError) as exc:
         parser.error(str(exc))
     print(json.dumps(receipt, indent=2, sort_keys=True))

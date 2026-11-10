@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "candidate": {
+    "id": "xgboost-v2",
+    "kind": "model"
+  },
+  "checks": [
+    {
+      "id": "pipeline_provenance",
+      "status": "passed",
+      "artifact": "model_audit.md",
+      "sha256": "27cf6fdfe048df0905393c1a50a70e7f4a56885f1b14711a5cd61d9bf3edb63a"
+    }
+  ]
+}

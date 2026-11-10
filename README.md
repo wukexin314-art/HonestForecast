@@ -33,6 +33,7 @@ HonestForecast makes those failure modes explicit and testable.
 - optional multi-series `unit` keys for locations, sites, products, or populations;
 - feature, data-source, model, preprocessing, recalibration, ensemble, and pipeline candidates;
 - append-only `challenger`, `rejected`, and `promoted` decisions;
+- hashed protocol locks, structured audit evidence, and bundle verification;
 - deterministic synthetic leakage and false-promotion scenarios;
 - Git-history data-vintage auditing;
 - a public India dengue repository-vintage pilot.
@@ -69,19 +70,37 @@ honestforecast assess \
 
 The command requires an exact evaluation grid, validates forecast quantiles and origin-level feature availability, runs paired robustness checks, appends the decision, and emits an evidence card. See the [portable assessment guide](docs/assessment.md) for schemas and interpretation.
 
-The same command can assess a model replacement without a feature manifest:
+The same command can assess a model replacement without a feature manifest. Freeze the design first if the run may support promotion:
 
 ```bash
+honestforecast register \
+  --protocol examples/assessment/model_protocol.json \
+  --contract examples/assessment/forecast_contract.json \
+  --output build/model_protocol.lock.json
+
 honestforecast assess \
   --contract examples/assessment/forecast_contract.json \
   --baseline examples/assessment/baseline_predictions.csv \
   --candidate examples/assessment/model_candidate_predictions.csv \
   --candidate-id xgboost-v2 \
   --candidate-kind model \
+  --registration build/model_protocol.lock.json \
+  --audit-evidence examples/assessment/model_audit_evidence.json \
+  --all-audit-gates-passed \
   --output build/model-assessment
+
+honestforecast verify \
+  --bundle build/model-assessment \
+  --contract examples/assessment/forecast_contract.json \
+  --baseline examples/assessment/baseline_predictions.csv \
+  --candidate examples/assessment/model_candidate_predictions.csv \
+  --registration build/model_protocol.lock.json \
+  --audit-evidence examples/assessment/model_audit_evidence.json
 ```
 
 For multi-series predictions, add a `unit` column to both files. Register subgroup columns such as `region`, `site`, or `population` with repeated `--stratum` options; a material loss in any registered stratum blocks promotion.
+
+The lock freezes the candidate, confirmation window, strata, bootstrap repetitions, seed, and contract hash. A local lock detects later changes but does not provide a trusted timestamp; publish its digest through a dated Git commit, release, or external registry before outcomes are opened when making a preregistration claim.
 
 ## Codex Skill
 
@@ -90,14 +109,14 @@ The repository includes a reusable Codex Skill at [`skills/honest-forecast`](ski
 ## Evidence chain
 
 ```text
-registered forecast change + applicable provenance
+hashed protocol lock + registered forecast change
     -> origin-valid evidence
     -> fold-local preprocessing when used
     -> development-only selection and tuning
     -> identical-grid probabilistic ablation
     -> robustness gates
     -> append-only decision
-    -> evidence card
+    -> verifiable evidence bundle
 ```
 
 A favorable metric is not sufficient for promotion. Confirmation must be frozen, the forecast grids must match, and every external audit gate must pass.
@@ -122,7 +141,7 @@ The latter two contributed design lessons only. No restricted data, client code,
 
 ## Novelty boundary
 
-WIS, rolling evaluation, leakage checks, point-in-time joins, and epidemic forecast scoring already have strong implementations. HonestForecast's contribution is the enforced end-to-end evidence chain and defect-injection benchmark for **forecast-change admission**, with its strongest provenance controls applying to feature and data-source changes. It is not a new metric or forecasting algorithm.
+WIS, rolling evaluation, leakage checks, point-in-time joins, hashing, and epidemic forecast scoring already have strong implementations. HonestForecast's contribution is the enforced end-to-end evidence chain, locked-design checks, and defect-injection benchmark for **forecast-change admission**, with its strongest provenance controls applying to feature and data-source changes. It is not a new metric, cryptographic protocol, or forecasting algorithm.
 
 See the [landscape review](docs/landscape.md) for the nearest projects, overlaps, and claims this project deliberately does not make.
 
@@ -140,7 +159,7 @@ skills/honest-forecast/           reusable Codex workflow and references
 
 ## Status
 
-Version 0.5.0 is research alpha software. Generic model and pipeline decisions rely on explicit researcher attestations for gates the supplied prediction files cannot independently verify. The India pilot has only seven scored origins and uses repository-state rather than source-native vintages. A longer prospective window is required before an effectiveness claim.
+Version 0.6.0 is research alpha software. Protocol locks detect design drift but use an untrusted local clock unless their digest is published externally. Structured audit evidence checks artifact bytes against declared hashes; it does not establish that their scientific claims are true. The India pilot has only seven scored origins and uses repository-state rather than source-native vintages. A longer prospective window is required before an effectiveness claim.
 
 ## License and citation
 

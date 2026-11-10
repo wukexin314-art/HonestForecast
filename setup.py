@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="honestforecast",
-    version="0.5.0",
+    version="0.6.0",
     description="Evidence gates for auditable forecast changes",
     long_description=(__import__("pathlib").Path(__file__).parent / "README.md").read_text(),
     long_description_content_type="text/markdown",

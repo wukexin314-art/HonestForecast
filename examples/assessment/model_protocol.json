@@ -1,0 +1,17 @@
+{
+  "study_id": "portable-forecast-change-demo",
+  "candidate": {
+    "id": "xgboost-v2",
+    "kind": "model"
+  },
+  "confirmation_window": {
+    "start": "2025-01-01",
+    "end": "2025-08-01"
+  },
+  "registered_strata": [],
+  "bootstrap_repetitions": 1000,
+  "seed": 20261109,
+  "audit_checks": [
+    "pipeline_provenance"
+  ]
+}

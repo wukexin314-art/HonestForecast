@@ -32,13 +32,27 @@ jobs:
             --candidate examples/assessment/candidate_predictions.csv \
             --availability examples/assessment/availability.csv \
             --output /tmp/honestforecast-assessment
+          honestforecast register \
+            --protocol examples/assessment/model_protocol.json \
+            --contract examples/assessment/forecast_contract.json \
+            --output /tmp/honestforecast-model-protocol.lock.json
           honestforecast assess \
             --contract examples/assessment/forecast_contract.json \
             --baseline examples/assessment/baseline_predictions.csv \
             --candidate examples/assessment/model_candidate_predictions.csv \
             --candidate-id xgboost-v2 \
             --candidate-kind model \
+            --registration /tmp/honestforecast-model-protocol.lock.json \
+            --audit-evidence examples/assessment/model_audit_evidence.json \
+            --all-audit-gates-passed \
             --output /tmp/honestforecast-model-assessment
+          honestforecast verify \
+            --bundle /tmp/honestforecast-model-assessment \
+            --contract examples/assessment/forecast_contract.json \
+            --baseline examples/assessment/baseline_predictions.csv \
+            --candidate examples/assessment/model_candidate_predictions.csv \
+            --registration /tmp/honestforecast-model-protocol.lock.json \
+            --audit-evidence examples/assessment/model_audit_evidence.json
       - name: Public safety and package metadata
         run: |
           python scripts/public_safety_scan.py

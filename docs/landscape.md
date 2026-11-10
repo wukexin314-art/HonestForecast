@@ -16,7 +16,7 @@ The chain is:
 
 The intended contribution is the integration and enforcement of that chain, plus defect-injection benchmarks that measure false promotion—not a new forecasting model.
 
-Version 0.5 also applies the same common-grid, robustness, and append-only decision layer to model, preprocessing, recalibration, ensemble, and pipeline changes. That broader interface is a practical reuse of the evidence gate, not a claim that generic model comparison is novel.
+Version 0.6 also applies the same common-grid, robustness, and append-only decision layer to model, preprocessing, recalibration, ensemble, and pipeline changes, with hashed protocol locks and verifiable evidence bundles. That broader interface is a practical reuse of the evidence gate, not a claim that generic model comparison or cryptographic hashing is novel.
 
 ## Nearest public projects and methods
 

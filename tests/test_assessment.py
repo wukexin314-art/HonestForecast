@@ -7,6 +7,7 @@ from pathlib import Path
 from honestforecast.assessment import AssessmentError, assess
 from honestforecast.audit import AuditError
 from honestforecast.metrics import QUANTILE_LEVELS, quantile_column
+from honestforecast.registration import register_protocol, sha256_file
 
 
 def _write_csv(path, rows):
@@ -99,6 +100,63 @@ class AssessmentTests(unittest.TestCase):
         )
         return contract, manifest, baseline, candidate, availability
 
+    def _registration(
+        self,
+        root,
+        contract,
+        *,
+        candidate_id,
+        candidate_kind,
+        strata=(),
+        audit_checks=(),
+    ):
+        protocol = root / f"{candidate_id}-protocol.json"
+        protocol.write_text(
+            json.dumps(
+                {
+                    "study_id": "portable-example",
+                    "candidate": {"id": candidate_id, "kind": candidate_kind},
+                    "confirmation_window": {
+                        "start": "2025-01-01",
+                        "end": "2025-08-01",
+                    },
+                    "registered_strata": list(strata),
+                    "bootstrap_repetitions": 50,
+                    "seed": 20261109,
+                    "audit_checks": list(audit_checks),
+                }
+            ),
+            encoding="utf-8",
+        )
+        lock = root / f"{candidate_id}-protocol.lock.json"
+        register_protocol(
+            protocol, contract, lock, registered_at="2025-01-01T00:00:00Z"
+        )
+        return lock
+
+    def _audit_evidence(self, root, candidate_id, candidate_kind):
+        artifact = root / "model-audit.txt"
+        artifact.write_text("training cutoff and fold-local preprocessing checked\n")
+        evidence = root / "audit-evidence.json"
+        evidence.write_text(
+            json.dumps(
+                {
+                    "schema_version": "1.0",
+                    "candidate": {"id": candidate_id, "kind": candidate_kind},
+                    "checks": [
+                        {
+                            "id": "pipeline_provenance",
+                            "status": "passed",
+                            "artifact": artifact.name,
+                            "sha256": sha256_file(artifact),
+                        }
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        return evidence
+
     def test_end_to_end_assessment_writes_portable_evidence(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -144,7 +202,7 @@ class AssessmentTests(unittest.TestCase):
                     all_audit_gates_passed=True,
                     bootstrap_repetitions=50,
                 )
-            receipt = assess(
+            unregistered = assess(
                 contract_path=inputs[0],
                 manifest_path=inputs[1],
                 baseline_path=inputs[2],
@@ -152,6 +210,25 @@ class AssessmentTests(unittest.TestCase):
                 availability_path=inputs[4],
                 output_dir=root / "promoted",
                 confirmation_frozen=True,
+                all_audit_gates_passed=True,
+                bootstrap_repetitions=50,
+            )
+            self.assertEqual(unregistered["decision"]["state"], "challenger")
+            self.assertIn("registration_missing", unregistered["decision"]["warnings"])
+            registration = self._registration(
+                root,
+                inputs[0],
+                candidate_id="digital_proxy",
+                candidate_kind="feature",
+            )
+            receipt = assess(
+                contract_path=inputs[0],
+                manifest_path=inputs[1],
+                baseline_path=inputs[2],
+                candidate_path=inputs[3],
+                availability_path=inputs[4],
+                registration_path=registration,
+                output_dir=root / "registered",
                 all_audit_gates_passed=True,
                 bootstrap_repetitions=50,
             )
@@ -198,12 +275,21 @@ class AssessmentTests(unittest.TestCase):
                 row["candidate_kind"] = "model"
             _write_csv(inputs[3], model_rows)
             output = root / "model"
+            registration = self._registration(
+                root,
+                inputs[0],
+                candidate_id="xgboost-v2",
+                candidate_kind="model",
+                audit_checks=("pipeline_provenance",),
+            )
+            audit_evidence = self._audit_evidence(root, "xgboost-v2", "model")
             receipt = assess(
                 contract_path=inputs[0],
                 baseline_path=inputs[2],
                 candidate_path=inputs[3],
                 output_dir=output,
-                confirmation_frozen=True,
+                registration_path=registration,
+                audit_evidence_path=audit_evidence,
                 all_audit_gates_passed=True,
                 bootstrap_repetitions=50,
             )
@@ -240,13 +326,23 @@ class AssessmentTests(unittest.TestCase):
             _write_csv(inputs[2], baseline_rows)
             _write_csv(inputs[3], candidate_rows)
             output = root / "strata"
+            registration = self._registration(
+                root,
+                inputs[0],
+                candidate_id="xgboost-v2",
+                candidate_kind="model",
+                strata=("region",),
+                audit_checks=("pipeline_provenance",),
+            )
+            audit_evidence = self._audit_evidence(root, "xgboost-v2", "model")
             receipt = assess(
                 contract_path=inputs[0],
                 baseline_path=inputs[2],
                 candidate_path=inputs[3],
                 output_dir=output,
                 strata=("region",),
-                confirmation_frozen=True,
+                registration_path=registration,
+                audit_evidence_path=audit_evidence,
                 all_audit_gates_passed=True,
                 bootstrap_repetitions=50,
             )

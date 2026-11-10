@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Mapping, Sequence
+from typing import Mapping, Optional, Sequence
 
 from .comparison import FamilyDecision
 from .contracts import ForecastContract
@@ -63,6 +63,7 @@ def render_assessment_evidence_card(
     decision: FamilyDecision,
     checks: Mapping[str, str],
     input_hashes: Mapping[str, str],
+    registration_sha256: Optional[str] = None,
 ) -> str:
     """Render the portable evidence card emitted by ``honestforecast assess``."""
     warnings = (
@@ -93,6 +94,8 @@ def render_assessment_evidence_card(
 - Candidate: `{candidate_id}`
 - Candidate kind: `{candidate_kind}`
 - Registered evidence items: {items}
+- Protocol registration: `{checks.get('protocol_registration', 'not_provided')}`
+- Registration digest: `{registration_sha256 or 'None'}`
 - Decision state: `{decision.state}`
 - Evidence level: `E3 report regeneration`
 
@@ -137,5 +140,5 @@ Differences use candidate minus baseline, so negative errors favor the candidate
 
 {interpretation}
 
-The tool validates the supplied artifacts, not the truth of upstream provenance or study declarations. A `promoted` result therefore remains conditional on accurate inputs and a genuinely frozen confirmation design. It is not a causal, clinical, or operational-safety claim.
+The tool validates the supplied artifacts and protocol lock, not the truth of upstream provenance or the lock's local timestamp. External time evidence such as a public Git commit or registry is still required for a strong preregistration claim. A `promoted` result is not a causal, clinical, or operational-safety claim.
 """

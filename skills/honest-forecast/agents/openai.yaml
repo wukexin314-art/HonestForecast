@@ -1,4 +1,4 @@
 interface:
   display_name: "HonestForecast"
-  short_description: "Audit forecast changes without hidden leakage"
-  default_prompt: "Use $honest-forecast to assess whether this candidate change deserves admission to my forecast."
+  short_description: "Lock, audit, and verify forecast changes"
+  default_prompt: "Use $honest-forecast to register and assess whether this candidate change deserves admission to my forecast."

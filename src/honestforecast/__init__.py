@@ -17,6 +17,12 @@ from .comparison import (
 from .contracts import ContractError, FeatureSpec, ForecastContract, load_feature_manifest
 from .features import FeatureError, FeatureLineage, as_of_join, fit_fold_transform
 from .metrics import MetricError, summarize_predictions, validate_prediction_rows
+from .registration import (
+    RegistrationError,
+    load_registration,
+    register_protocol,
+    verify_assessment,
+)
 from .screening import ScreeningError, screen_candidates
 from .vintages import GitSnapshot, SnapshotAudit, VintageError, audit_snapshots
 
@@ -32,6 +38,7 @@ __all__ = [
     "ForecastContract",
     "GitSnapshot",
     "MetricError",
+    "RegistrationError",
     "ScreeningError",
     "SnapshotAudit",
     "VintageError",
@@ -46,9 +53,12 @@ __all__ = [
     "compare_candidate",
     "fit_fold_transform",
     "load_feature_manifest",
+    "load_registration",
+    "register_protocol",
     "summarize_predictions",
     "validate_prediction_rows",
+    "verify_assessment",
     "screen_candidates",
 ]
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"

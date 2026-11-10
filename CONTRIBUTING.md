@@ -9,6 +9,8 @@ HonestForecast accepts focused changes that strengthen point-in-time validity, f
 3. Keep model-specific code outside the core unless it enforces a general evidence rule.
 4. Do not include private data, credentials, patient-level records, or artifacts with unclear redistribution rights.
 5. Preserve negative candidate decisions and comparable evaluation grids.
+6. Lock promotion-capable confirmation protocols before inspecting outcomes.
+7. Include hash-verified audit artifacts for non-source candidates that claim all gates passed.
 
 ## Local checks
 
