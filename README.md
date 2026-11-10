@@ -114,6 +114,14 @@ In Claude Code, install it from this repository's marketplace:
 
 On older Claude Code versions, run `/plugin marketplace add wukexin314-art/HonestForecast`, then `/plugin install honest-forecast@honestforecast`. The skill calls the `honestforecast` CLI, so install the package too (see Quick start). In Codex, the same folder works as a skill (`agents/openai.yaml`).
 
+`evals/` holds seven behavioural cases: six pressure the agent to relax a gate (sort crossing quantiles, drop a losing registered region, overwrite an open lock, reuse development seasons as confirmation, generalise a rejection, promote from a latest-revised backtest), and one control checks that it still helps with a legitimate request. Run them with and without the skill:
+
+```bash
+claude plugin eval . --trust-plugin --runs 3 --judge-model sonnet --no-publish
+```
+
+On 2026-11-10 (Claude Code 2.1.322, 2–3 runs per arm) the skill passed every case. Without it, the agent failed the quantile-sorting and lock-overwrite cases every time and was inconsistent on the control and development-reuse cases; the other three it already handled. The graders and cases were written by the skill's author, so treat this as a regression check, not an independent benchmark.
+
 ## Evidence chain
 
 ```text
