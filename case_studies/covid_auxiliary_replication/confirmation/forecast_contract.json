@@ -1,0 +1,12 @@
+{
+  "study_id": "covid-auxiliary-indicators-replication-2021",
+  "target_name": "JHU CSSE 7-day average confirmed COVID-19 case rate per 100k, HRR level, latest revised",
+  "frequency": "weekly origins (Mondays) on daily data",
+  "horizons": [
+    7,
+    14,
+    21
+  ],
+  "primary_metric": "WIS",
+  "development_only_selection": true
+}

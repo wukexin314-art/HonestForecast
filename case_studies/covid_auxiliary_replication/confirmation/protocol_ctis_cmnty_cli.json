@@ -1,0 +1,17 @@
+{
+  "study_id": "covid-auxiliary-indicators-replication-2021",
+  "candidate": {
+    "id": "ctis_cmnty_cli",
+    "kind": "feature"
+  },
+  "confirmation_window": {
+    "start": "2021-04-05",
+    "end": "2022-01-16"
+  },
+  "registered_strata": [
+    "trend"
+  ],
+  "bootstrap_repetitions": 1000,
+  "seed": 20261109,
+  "audit_checks": []
+}

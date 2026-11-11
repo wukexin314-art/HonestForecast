@@ -1,0 +1,6 @@
+feature_id,family,version,availability_class,minimum_reporting_lag,vintage_policy,state
+chng_cli,chng_cli,1,observed_with_lag,4 days,delphi_issue_history_as_of_origin,candidate
+chng_covid,chng_covid,1,observed_with_lag,4 days,delphi_issue_history_as_of_origin,candidate
+dv_cli,dv_cli,1,observed_with_lag,3 days,delphi_issue_history_as_of_origin,candidate
+ctis_cmnty_cli,ctis_cmnty_cli,1,observed_with_lag,1 day,delphi_issue_history_as_of_origin,candidate
+gs_anosmia_ageusia,gs_anosmia_ageusia,1,observed_with_lag,3 days,delphi_issue_history_as_of_origin,candidate

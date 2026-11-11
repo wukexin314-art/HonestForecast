@@ -1,0 +1,33 @@
+{
+  "code_sha256": {
+    "assessment.py": "36b4848a8541cfabaf0a465d349317aad019e6dabb4c8baae19f9619ef4d14ef",
+    "audit.py": "9b12f20bd3d2bfe3299ee51849e373e60f743f8fb375ccd3246ed8083b4093e1",
+    "comparison.py": "0d3be7e8efdeaa32ac53132e5739798b99a30cfc67a4eb83e847ef27fbfaf7de",
+    "metrics.py": "1f17dca3e41bcfe5d8652bf0b0127469cf76ae7203f0ad8b7e6ffa3f18ab727f"
+  },
+  "input_sha256": {
+    "contract": "3b42a8369948814989797033a50f37539b993d75ffb75f5afb576c83ffdb8ab0",
+    "protocol": "56c5d4db1bc79a0b28daac782b74dc9bbe073e94a8a5f7844d8a65b8aac7a192"
+  },
+  "protocol": {
+    "audit_checks": [],
+    "bootstrap_repetitions": 1000,
+    "candidate": {
+      "id": "ctis_cmnty_cli",
+      "kind": "feature"
+    },
+    "confirmation_window": {
+      "end": "2022-01-16",
+      "start": "2021-04-05"
+    },
+    "registered_strata": [
+      "trend"
+    ],
+    "seed": 20261109,
+    "study_id": "covid-auxiliary-indicators-replication-2021"
+  },
+  "registered_at": "2026-11-11T14:40:58.828101Z",
+  "registration_sha256": "ff677681334379b4477afb7dc559cdfe458f8ca7e2023581d3fe338756a1ba41",
+  "schema_version": "1.1",
+  "timestamp_authority": "local_clock_untrusted"
+}

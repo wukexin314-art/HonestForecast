@@ -50,8 +50,18 @@ class CaseStudyArtifactTests(unittest.TestCase):
         for module in ("flu_nowcast.py", "flu_case.py", "dengue_case.py"):
             with self.subTest(module=module):
                 self.assertIn(sha256_file(ROOT / "src" / "honestforecast" / module), readme)
+        covid = ROOT / "case_studies" / "covid_auxiliary_replication"
+        covid_readme = (covid / "README.md").read_text()
+        self.assertIn(sha256_file(covid / "replicate.py"), covid_readme)
+        covid_locks = sorted((covid / "confirmation").glob("protocol_*.lock.json"))
+        self.assertEqual(len(covid_locks), 5)
+        for lock_path in covid_locks:
+            lock = load_registration(lock_path)
+            self.assertIn(lock["registration_sha256"], covid_readme)
+            self.assertEqual(lock["input_sha256"]["protocol"], sha256_file(lock_path.with_name(lock_path.name.replace(".lock", ""))))
+            self.assertEqual(lock["input_sha256"]["contract"], sha256_file(covid / "confirmation" / "forecast_contract.json"))
         # Fails if a scoring or promotion rule is edited while the open confirmations run.
-        for lock_path in (CASE / "prospective_v4" / "protocol.lock.json", nowcast / "prospective_r3" / "protocol.lock.json"):
+        for lock_path in (CASE / "prospective_v4" / "protocol.lock.json", nowcast / "prospective_r3" / "protocol.lock.json", *covid_locks):
             with self.subTest(lock=str(lock_path)):
                 self.assertEqual(load_registration(lock_path)["code_sha256"], decision_code_hashes())
 
