@@ -10,7 +10,9 @@ Registration digest (`registration_sha256` in `protocol.lock.json`):
 e5679faa43073420f79b611bb015660ad637041c6be2b1b970d332f2f354331b
 ```
 
-The lock's own timestamp comes from a local clock and is not trusted. The trusted date is the GitHub push of the commit that adds this folder. Any later edit to `protocol.json`, `forecast_contract.json`, the lock, or one of the four decision-code modules makes `assess --registration` fail (a test checks this).
+The lock's own timestamp comes from a local clock and is not trusted. The trusted dates are the GitHub push of the commit that adds this folder and the Zenodo archive below. Any later edit to `protocol.json`, `forecast_contract.json`, the lock, or one of the four decision-code modules makes `assess --registration` fail (a test checks this).
+
+An independent timestamp comes from Zenodo: release `v0.8.0` (commit `e11b309`), which contains this lock, was archived as [10.5281/zenodo.24122438](https://doi.org/10.5281/zenodo.24122438) at 2026-11-11 00:44 UTC, before the first confirmation origin. The archived lock digest and decision code match this folder byte for byte.
 
 ## Frozen design
 

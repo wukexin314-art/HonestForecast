@@ -6,6 +6,11 @@ authors:
   - name: "wukexin314-art"
 repository-code: "https://github.com/wukexin314-art/HonestForecast"
 url: "https://github.com/wukexin314-art/HonestForecast"
-version: 0.7.0
-date-released: 2026-11-09
+version: 0.8.0
+date-released: 2026-11-11
+doi: 10.5281/zenodo.24122437
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.24122438
+    description: "Archived snapshot of release v0.8.0 (contains the open confirmation locks)"
 license: MIT

@@ -19,6 +19,8 @@ This lock supersedes two earlier locks registered the same day, before the first
 
 **This is a true prospective test.** Confirmation origins are ILINet releases from **2026-11-13** (the first release after this folder was pushed) to 2027-05-31. None of their outcomes existed at registration.
 
+An independent timestamp comes from Zenodo: release `v0.8.0` (commit `e11b309`), which contains this lock, was archived as [10.5281/zenodo.24122438](https://doi.org/10.5281/zenodo.24122438) at 2026-11-11 00:44 UTC, before the first confirmation origin. The archived lock digest and decision code match this folder byte for byte.
+
 ## Pinned model code
 
 The lock pins the decision modules. The model code is pinned here, and `tests/test_case_study_artifacts.py` fails if any of it changes:

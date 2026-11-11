@@ -61,4 +61,4 @@ __all__ = [
     "screen_candidates",
 ]
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"
