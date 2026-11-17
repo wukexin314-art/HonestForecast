@@ -1,0 +1,99 @@
+{
+  "assessment_config": {
+    "bootstrap_repetitions": 1000,
+    "registered_strata": [
+      "trend"
+    ],
+    "seed": 20261109
+  },
+  "candidate": {
+    "id": "gs_anosmia_ageusia",
+    "kind": "feature"
+  },
+  "candidate_family": "gs_anosmia_ageusia",
+  "checks": {
+    "common_grid": "passed",
+    "contract_horizons": "passed",
+    "feature_availability": "passed",
+    "feature_manifest": "passed",
+    "feature_vintage": "passed",
+    "forecast_contract": "passed",
+    "prediction_schema": "passed",
+    "protocol_registration": "passed",
+    "quantile_monotonicity": "passed",
+    "structured_audit_evidence": "not_required"
+  },
+  "claims": {
+    "all_audit_gates_passed": true,
+    "availability_evidence_supplied": true,
+    "confirmation_frozen": true,
+    "legacy_confirmation_flag": false,
+    "registered_strata": [
+      "trend"
+    ],
+    "structured_audit_evidence_supplied": false
+  },
+  "contract": {
+    "development_only_selection": true,
+    "frequency": "weekly origins (Mondays) on daily data",
+    "horizons": [
+      7,
+      14,
+      21
+    ],
+    "primary_metric": "WIS",
+    "study_id": "covid-auxiliary-indicators-replication-2021",
+    "target_name": "JHU CSSE 7-day average confirmed COVID-19 case rate per 100k, HRR level, latest revised"
+  },
+  "decision": {
+    "bootstrap_95_lower": -0.17359120676139084,
+    "bootstrap_95_upper": 0.24472105137749955,
+    "candidate_id": "gs_anosmia_ageusia",
+    "coverage_difference": -0.009102832196052568,
+    "drop_best_origin_wis_difference": 0.14336403229622674,
+    "family": "gs_anosmia_ageusia",
+    "improved_origin_proportion": 0.36585365853658536,
+    "mean_mae_difference": -0.12729212961585024,
+    "mean_wis_difference": 0.023186772624411565,
+    "n_cases": 218064,
+    "n_origins": 41,
+    "state": "rejected",
+    "warnings": [
+      "event_concentration",
+      "fewer_than_60_percent_origins_improved",
+      "uncertainty_includes_no_improvement"
+    ]
+  },
+  "evaluation_grid": {
+    "horizons": [
+      7,
+      14,
+      21
+    ],
+    "n_cases": 218064,
+    "n_origins": 41,
+    "n_units": 306
+  },
+  "feature_identities": [
+    "gs_anosmia_ageusia@1"
+  ],
+  "input_sha256": {
+    "availability": "8d4a0ec5f730ab4d4cd14d568e19c5f5be5de6fca830dd702b1fa0847d6a3460",
+    "baseline": "5cf20cfdec0fc16019e552839c9809df9fa11dd840d9217fbcdff165db944506",
+    "candidate": "6fe1768304031bc73b6f0bab194cba8013b28325a7a2c32da46743e3af923c8b",
+    "contract": "3b42a8369948814989797033a50f37539b993d75ffb75f5afb576c83ffdb8ab0",
+    "manifest": "b6e8827ef396affc77ec2123ac2049e8b3605c617c7b7a7c06a18e51abf12b41",
+    "registration": "e7518d466e7ab7f297be5b638db1da08decdffa2c17e296cff14be710a49279d"
+  },
+  "output_sha256": {
+    "decision_log.jsonl": "9f8a91757048549be8d3a7a82b02bff1f8a6116c2b105f29612bf6d83d55bc32",
+    "evidence_card.md": "6e9b6938e0c6fca19bd9c7bce6b567bc288573888e997ec9abb79de4baba4ac9",
+    "metrics.csv": "5ea401b8a498325befcdcfaf467b12000d20fbe7b6651abae8267d41cf49fb26",
+    "origin_differences.csv": "b921444c4580b766ab937b95145ed923ca30071b6bca73790ad60581fee6aa96",
+    "robustness.json": "dcded208d866073d2465fd4e01a968769248784bb1c3d5395bf752e0ca00d47b"
+  },
+  "receipt_sha256": "e771533106a8a1aca132c8d04a4af3c96aeeac890bded9dcffda2ad7a36fe424",
+  "registration_sha256": "ef4f7dcffdaf0d57e58ca04b17758cc4fdcf640fad7e42e5e68127f2ee4a9d60",
+  "schema_version": "3.0",
+  "study_id": "covid-auxiliary-indicators-replication-2021"
+}

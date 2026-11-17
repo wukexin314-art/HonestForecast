@@ -1,0 +1,32 @@
+{
+ "chng_cli": {
+  "mean_wis_difference": -0.9119495726704233,
+  "p_one_sided": 0.001,
+  "p_holm": 0.005,
+  "replicates_under_holm": true
+ },
+ "chng_covid": {
+  "mean_wis_difference": -0.7082344731275517,
+  "p_one_sided": 0.067,
+  "p_holm": 0.268,
+  "replicates_under_holm": false
+ },
+ "dv_cli": {
+  "mean_wis_difference": 0.025525372984504715,
+  "p_one_sided": 0.502,
+  "p_holm": 1.0,
+  "replicates_under_holm": false
+ },
+ "ctis_cmnty_cli": {
+  "mean_wis_difference": 0.15896500867624352,
+  "p_one_sided": 0.643,
+  "p_holm": 1.0,
+  "replicates_under_holm": false
+ },
+ "gs_anosmia_ageusia": {
+  "mean_wis_difference": -0.03399951770388992,
+  "p_one_sided": 0.446,
+  "p_holm": 1.0,
+  "replicates_under_holm": false
+ }
+}

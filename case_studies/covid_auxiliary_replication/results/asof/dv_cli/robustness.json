@@ -1,0 +1,65 @@
+{
+  "decision": {
+    "bootstrap_95_lower": -0.5942193895680172,
+    "bootstrap_95_upper": 1.0559404382896225,
+    "candidate_id": "dv_cli",
+    "coverage_difference": -0.01622033229662656,
+    "drop_best_origin_wis_difference": 0.5093170489237743,
+    "family": "dv_cli",
+    "improved_origin_proportion": 0.4146341463414634,
+    "mean_mae_difference": -0.6347018667952816,
+    "mean_wis_difference": 0.18459862070935215,
+    "n_cases": 217998,
+    "n_origins": 41,
+    "state": "rejected",
+    "warnings": [
+      "event_concentration",
+      "fewer_than_60_percent_origins_improved",
+      "uncertainty_includes_no_improvement"
+    ]
+  },
+  "difference_sign": "candidate_minus_baseline; negative favors candidate",
+  "horizon_differences": [
+    {
+      "horizon": 7,
+      "mean_wis_difference": 0.923680396783004,
+      "n_cases": 72666
+    },
+    {
+      "horizon": 14,
+      "mean_wis_difference": -0.05511179984130496,
+      "n_cases": 72666
+    },
+    {
+      "horizon": 21,
+      "mean_wis_difference": -0.31477273481364254,
+      "n_cases": 72666
+    }
+  ],
+  "stratum_differences": [
+    {
+      "bootstrap_95_lower": -2.0431289723415853,
+      "distinguishable_loss": false,
+      "mean_wis_difference": 0.05268696495256339,
+      "n_cases": 67572,
+      "stratum": "trend",
+      "value": "falling"
+    },
+    {
+      "bootstrap_95_lower": -1.7345461558203241,
+      "distinguishable_loss": false,
+      "mean_wis_difference": -0.05133007078241245,
+      "n_cases": 54891,
+      "stratum": "trend",
+      "value": "flat"
+    },
+    {
+      "bootstrap_95_lower": -0.6120737128428145,
+      "distinguishable_loss": false,
+      "mean_wis_difference": 0.4134560677965158,
+      "n_cases": 95535,
+      "stratum": "trend",
+      "value": "rising"
+    }
+  ]
+}

@@ -117,3 +117,40 @@ python $S/replicate.py prepare --split confirmation --data asof
 ```
 
 Then, for each indicator `<i>`, run `honestforecast assess` on `build/covid_confirmation_asof_paired/<i>/` with `--contract $S/confirmation/forecast_contract.json --manifest $S/confirmation/feature_manifest.csv --registration $S/confirmation/protocol_<i>.lock.json --candidate-id <i> --candidate-kind feature --stratum trend`, then `python $S/replicate.py holm --split confirmation --data asof`. Repeating with `--data finalized` gives the secondary vintage-optimism analysis.
+
+## Results: primary analysis (as-of data, scored 2026-11-11)
+
+Data fetched 2026-11-11 after the registration commit `a980cf9`. All five bundles pass `honestforecast verify` against their locks. Artifacts are in `results/asof/` (forecasts and raw data are not committed).
+
+| Indicator | Weeks scored | `AR3` WIS | Mean WIS diff | 95% block-bootstrap CI | Holm p | Replicates? | Gate state |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| CHNG-CLI | 35 / 41 | 17.49 | −0.474 (−2.7%) | (−6.4%, +0.2%) | 0.395 | no | challenger |
+| CHNG-COVID | 35 / 41 | 17.49 | −0.457 (−2.6%) | (−6.7%, +1.4%) | 0.512 | no | challenger |
+| DV-CLI | 41 / 41 | 15.48 | +0.185 (+1.2%) | (−3.8%, +6.8%) | 1.000 | no | rejected |
+| CTIS-CLI-in-community | 41 / 41 | 15.30 | +0.097 (+0.6%) | (−2.4%, +4.7%) | 1.000 | no | rejected |
+| Google-AA | 41 / 41 | 15.47 | +0.023 (+0.1%) | (−1.1%, +1.6%) | 1.000 | no | rejected |
+
+**Headline: 0 of 5 indicators replicate under Holm, and 0 of 5 meet the criterion even unadjusted** (no upper bound below zero).
+
+- The two CHNG indicators point in the paper's direction, with about a 2.7% gain, but their intervals reach just past zero. They lost 6 weeks to the registered pause rule (35 of 41 scored, above the 80% `incomplete` threshold). Gains of up to about 6% are not ruled out.
+- DV, CTIS and Google-AA have point estimates near zero or slightly worse than `AR3`. Their intervals rule out improvements larger than 3.8%, 2.4% and 1.1% respectively. CTIS was the strongest indicator in development (−2.7%). Here, its 7-day gain (−0.48) is offset by losses at 21 days (+0.71).
+- **Trend stratum (secondary claim: gains largest when cases are flat or falling): not supported.** Where an indicator helped, the gain was largest in *rising* HRRs (CHNG-CLI −0.86, CHNG-COVID −1.48), and falling HRRs showed small losses. No stratum loss is distinguishable from noise under the pinned gate.
+- Implementation note: `holm.json` averages origin means with equal weight, as the bootstrap does. The `assess` mean is case-weighted, so the two means differ slightly, e.g. −0.392 vs −0.474 for CHNG-CLI. Signs agree for every indicator, and the conclusion does not depend on which mean is used. The registered code was not changed after scoring.
+
+Interpretation, as fixed in advance: this specification's gains did not replicate on 2021–22 as-of data at the resolution this design can achieve (about 2–4% of `AR3` WIS). This is not evidence that the indicators never help, and the CHNG results are compatible with a gain of a few percent.
+
+## Results: secondary analysis (finalized data, descriptive)
+
+Every model was rerun on the same cells with finalized values in place of the as-of values. This analysis is not registered as a replication test, so it is not a confirmation. Artifacts are in `results/finalized/`.
+
+| Indicator | As-of diff vs `AR3` | Finalized diff vs `AR3` | Finalized 95% CI | Finalized Holm p |
+| --- | --- | --- | --- | --- |
+| CHNG-CLI | −2.7% | **−6.5%** | (−13.9%, −0.3%) | 0.005 |
+| CHNG-COVID | −2.6% | −5.0% | (−11.2%, +0.6%) | 0.268 |
+| DV-CLI | +1.2% | +0.2% | (−5.8%, +6.5%) | 1.000 |
+| CTIS-CLI-in-community | +0.6% | +1.2% | (−2.2%, +5.9%) | 1.000 |
+| Google-AA | +0.1% | −0.3% | (−1.9%, +1.3%) | 1.000 |
+
+- **Vintage optimism is large for CHNG.** On finalized data, the CHNG gains roughly double. CHNG-CLI would then meet the replication criterion under Holm. On the data a forecaster actually had, it does not. `AR3` itself improves by only about 1% (17.49 → 17.29), so most of the gap is in the indicator rather than the target.
+- The ranking at the top is unchanged (CHNG-CLI, CHNG-COVID, then Google-AA), and DV and CTIS swap places at the bottom.
+- This matches the direction of the paper's own supplement (finalized results looked better). It shows that a finalized-data evaluation would have led to a different conclusion for CHNG-CLI.

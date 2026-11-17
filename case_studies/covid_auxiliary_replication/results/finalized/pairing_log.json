@@ -1,0 +1,42 @@
+{
+ "chng_cli": {
+  "cases_scored": 178878,
+  "baseline_only_cases_dropped": 40077,
+  "candidate_only_cases_dropped": 0,
+  "origins_scored": 35,
+  "origins_planned": 41,
+  "incomplete": false
+ },
+ "chng_covid": {
+  "cases_scored": 178878,
+  "baseline_only_cases_dropped": 40077,
+  "candidate_only_cases_dropped": 0,
+  "origins_scored": 35,
+  "origins_planned": 41,
+  "incomplete": false
+ },
+ "dv_cli": {
+  "cases_scored": 218889,
+  "baseline_only_cases_dropped": 66,
+  "candidate_only_cases_dropped": 0,
+  "origins_scored": 41,
+  "origins_planned": 41,
+  "incomplete": false
+ },
+ "ctis_cmnty_cli": {
+  "cases_scored": 215994,
+  "baseline_only_cases_dropped": 2961,
+  "candidate_only_cases_dropped": 0,
+  "origins_scored": 41,
+  "origins_planned": 41,
+  "incomplete": false
+ },
+ "gs_anosmia_ageusia": {
+  "cases_scored": 218955,
+  "baseline_only_cases_dropped": 0,
+  "candidate_only_cases_dropped": 0,
+  "origins_scored": 41,
+  "origins_planned": 41,
+  "incomplete": false
+ }
+}

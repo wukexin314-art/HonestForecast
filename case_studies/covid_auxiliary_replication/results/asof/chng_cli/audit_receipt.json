@@ -1,0 +1,97 @@
+{
+  "assessment_config": {
+    "bootstrap_repetitions": 1000,
+    "registered_strata": [
+      "trend"
+    ],
+    "seed": 20261109
+  },
+  "candidate": {
+    "id": "chng_cli",
+    "kind": "feature"
+  },
+  "candidate_family": "chng_cli",
+  "checks": {
+    "common_grid": "passed",
+    "contract_horizons": "passed",
+    "feature_availability": "passed",
+    "feature_manifest": "passed",
+    "feature_vintage": "passed",
+    "forecast_contract": "passed",
+    "prediction_schema": "passed",
+    "protocol_registration": "passed",
+    "quantile_monotonicity": "passed",
+    "structured_audit_evidence": "not_required"
+  },
+  "claims": {
+    "all_audit_gates_passed": true,
+    "availability_evidence_supplied": true,
+    "confirmation_frozen": true,
+    "legacy_confirmation_flag": false,
+    "registered_strata": [
+      "trend"
+    ],
+    "structured_audit_evidence_supplied": false
+  },
+  "contract": {
+    "development_only_selection": true,
+    "frequency": "weekly origins (Mondays) on daily data",
+    "horizons": [
+      7,
+      14,
+      21
+    ],
+    "primary_metric": "WIS",
+    "study_id": "covid-auxiliary-indicators-replication-2021",
+    "target_name": "JHU CSSE 7-day average confirmed COVID-19 case rate per 100k, HRR level, latest revised"
+  },
+  "decision": {
+    "bootstrap_95_lower": -1.1236286314304667,
+    "bootstrap_95_upper": 0.043007221154664925,
+    "candidate_id": "chng_cli",
+    "coverage_difference": -0.013142234797449026,
+    "drop_best_origin_wis_difference": -0.01884743837324721,
+    "family": "chng_cli",
+    "improved_origin_proportion": 0.6285714285714286,
+    "mean_mae_difference": -1.288057655283839,
+    "mean_wis_difference": -0.47380405589667113,
+    "n_cases": 178128,
+    "n_origins": 35,
+    "state": "challenger",
+    "warnings": [
+      "uncertainty_includes_no_improvement"
+    ]
+  },
+  "evaluation_grid": {
+    "horizons": [
+      7,
+      14,
+      21
+    ],
+    "n_cases": 178128,
+    "n_origins": 35,
+    "n_units": 306
+  },
+  "feature_identities": [
+    "chng_cli@1"
+  ],
+  "input_sha256": {
+    "availability": "a9792e8f46dbfc002158e1ac234341df3a735f940df8ff6cf6c3d815b8a1e8ba",
+    "baseline": "c41a47a7ae12d816e6732ee322fcbb83200633c1c39c8d35ae1c588d1f6cbc5a",
+    "candidate": "6e60329a97a1989026b885e351455292b6ff32306d4e9e72e3f6b55c7aefcd42",
+    "contract": "3b42a8369948814989797033a50f37539b993d75ffb75f5afb576c83ffdb8ab0",
+    "manifest": "b6e8827ef396affc77ec2123ac2049e8b3605c617c7b7a7c06a18e51abf12b41",
+    "registration": "e1bfc2133c668a65fc7f3feacaee7837eb1463f5626ea6037417558c1738199e"
+  },
+  "output_sha256": {
+    "decision_log.jsonl": "fa545953b94523808ae624ac85a53bddb6894f92273c872a404595f43be5996b",
+    "evidence_card.md": "ef2b5dea143ef4aefc1be8dc2f9db0d8ef54b5f9f6741af857557fa063b46316",
+    "metrics.csv": "573b13b58540dc398c9a079ed72f1fe3d8ef5985cd9af70a2edca247318bff5d",
+    "origin_differences.csv": "03195ea3c09567caf8a7ab3613557e2feb1127c2aa43188353c60fe204da349d",
+    "robustness.json": "3bb8ee75b163ec231a6962287e3915d75c8d4a54eb30fb5161baface2cc4a6c1"
+  },
+  "receipt_sha256": "08f371bf6f6819be4b8667271fe3133f1b37b15163640ded94b021c95c3e7a71",
+  "registration_sha256": "a5566d7f6dd7be0ab4430c467089adcdf6fe7938107cb82396e5ef578fba4be5",
+  "schema_version": "3.0",
+  "study_id": "covid-auxiliary-indicators-replication-2021"
+}
