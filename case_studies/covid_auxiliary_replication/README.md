@@ -101,7 +101,7 @@ The model code is outside the locks. Its hash is recorded here and checked by `t
 
 - `replicate.py`: `e0116b3daa212b2459d3c1b9f7053dfaa9903d2e681bcc96cac7a83fe3b8d9b7`
 
-The lock timestamps come from the local clock. The external timestamp is the public Git commit that adds this folder, made before any confirmation-window fetch.
+The lock timestamps come from the local clock. The external timestamp is the public Git commit that adds this folder, made before any confirmation-window fetch. Release `v0.9.0` (commit `f5fea2b`), which contains the locks and results, was archived on Zenodo as [10.5281/zenodo.24323269](https://doi.org/10.5281/zenodo.24323269) at 2026-11-17 19:10 UTC. That timestamp is after scoring, so it shows only that the results have not changed since then. It does not show that registration came first.
 
 ## Running the confirmation (after registration only)
 
